@@ -1,0 +1,12 @@
+version: '3.7'
+
+services:
+
+  users:
+    build:
+      context: ./services/users
+      dockerfile: Dockerfile
+    volumes:
+      - './services/users:/usr/src/app'
+    ports:
+      - 5001:5000
