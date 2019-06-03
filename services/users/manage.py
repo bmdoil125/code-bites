@@ -2,10 +2,13 @@
 import sys
 import unittest
 from flask.cli import FlaskGroup
-from project import app, db
+from project import create_app, db
+from project.api.models import User
 
+# instantiate app using Application Factory
+app = create_app()
 #Extends normal cli with commands related to Flask
-cli = FlaskGroup(app)
+cli = FlaskGroup(create_app=create_app)
 
 @cli.command('recreate_db')
 def recreate_db():

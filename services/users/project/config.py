@@ -6,6 +6,7 @@ class BaseConfig:
     """Base Configuration"""
     TESTING = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SECRET_KEY = os.getenv('SECRET_KEY')
 
 class DevConfig(BaseConfig):
     """Development Configuration"""

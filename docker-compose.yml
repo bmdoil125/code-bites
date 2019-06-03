@@ -12,7 +12,6 @@ services:
       - 5001:5000
     environment: 
      - FLASK_ENV=development
-     - FLASK_APP=project/__init__.py
      - APP_SETTINGS=project.config.DevConfig
      - DATABASE_URL=postgres://postgres:postgres@users-db:5432/users_dev 
      - DATABASE_TEST_URL=postgres://postgres:postgres@users-db:5432/users_test

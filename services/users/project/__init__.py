@@ -5,33 +5,34 @@ from flask_restful import Resource, Api
 from flask_sqlalchemy import SQLAlchemy
 import os
 
-#instantiate app
-app = Flask(__name__)
+#instantiate db
+db = SQLAlchemy()
 
-api = Api(app)
+#Application Factory -- instantiate app
+def create_app(script_info=None):
+    app = Flask(__name__)
 
-#set config
-app_settings = os.getenv('APP_SETTINGS')
-app.config.from_object(app_settings)
+    #set config
+    app_settings = os.getenv('APP_SETTINGS')
+    app.config.from_object(app_settings)
 
-db = SQLAlchemy(app)
+    #set up db extension
+    db.init_app(app)
 
-class User(db.Model):  
-    __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.String(128), nullable=False)
-    email = db.Column(db.String(128), nullable=False)
-    active = db.Column(db.Boolean(), default=True, nullable=False)
+    #imported here to avoid circular import
+    from project.api.users import users_blueprint
+    app.register_blueprint(users_blueprint)
 
-    def __init__(self, username, email):
-        self.username = username
-        self.email = email
+    '''
+    shell context for flask cli used to register the app and db to the shell to work with the application context and db 
+    without having to import directly to shell
+    Ex: docker-compose exec users flask shell
+    ''' 
+    @app.shell_context_processor
+    def ctx():
+        return {'app': app, 'db': db}
+    return app
 
-class UsersPing(Resource):
-    def get(self):
-        return {
-            "status": "success",
-            "message": "pong"
-        }
 
-api.add_resource(UsersPing, '/users/ping')
+
+
