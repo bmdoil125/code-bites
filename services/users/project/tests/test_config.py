@@ -22,6 +22,7 @@ class TestDevelopmentConfig(TestCase):
             app.config['SQLALCHEMY_DATABASE_URI'] ==
             os.environ.get('DATABASE_URL')
         )
+        self.assertTrue(app.config['DEBUG_TOOLBAR'])
 
 
 class TestTestingConfig(TestCase):
@@ -37,6 +38,7 @@ class TestTestingConfig(TestCase):
             app.config['SQLALCHEMY_DATABASE_URI'] ==
             os.environ.get('DATABASE_TEST_URL')
         )
+        self.assertFalse(app.config['DEBUG_TOOLBAR'])
 
 
 class TestProductionConfig(TestCase):
@@ -47,6 +49,7 @@ class TestProductionConfig(TestCase):
     def test_app_is_production(self):
         self.assertTrue(app.config['SECRET_KEY'] == 'supersecretkey')
         self.assertFalse(app.config['TESTING'])
+        self.assertFalse(app.config['DEBUG_TOOLBAR'])
 
 
 if __name__ == '__main__':

@@ -1,12 +1,20 @@
 #  services/users/project/__init__.py
-
+import os
 from flask import Flask, jsonify
 from flask_restful import Resource, Api
 from flask_sqlalchemy import SQLAlchemy
-import os
+from flask_debugtoolbar import DebugToolbarExtension
+from flask_cors import CORS
+
 
 # instantiate db
 db = SQLAlchemy()
+
+#instantiate toolbar
+toolbar = DebugToolbarExtension()
+
+#instantiate CORS
+cors = CORS()
 
 # Application Factory -- instantiate app
 def create_app(script_info=None):
@@ -18,6 +26,10 @@ def create_app(script_info=None):
 
     # set up db extension
     db.init_app(app)
+    # set up toolbar extension
+    toolbar.init_app(app)
+    # set up CORS extension
+    cors.init_app(app)
 
     # imported here to avoid circular import
     from project.api.users import users_blueprint
