@@ -1,14 +1,43 @@
 # services/users/manage.py
 import sys
 import unittest
+import coverage
 from flask.cli import FlaskGroup
 from project import create_app, db
 from project.api.models import User
+
+# instantiate code coverage tests
+COV = coverage.coverage(
+    branch=True,
+    include='project/*',
+    omit=[
+        'project/tests/*',
+        'project/config.py'
+    ]
+)
+
+COV.start()
 
 # instantiate app using Application Factory
 app = create_app()
 #Extends normal cli with commands related to Flask
 cli = FlaskGroup(create_app=create_app)
+
+@cli.command()
+def cov():
+    """ Coverage tests """
+    tests = unittest.TestLoader().discover('project/tests') # find the tests
+    result = unittest.TextTestRunner(verbosity=2).run(tests) # run tests
+    if result.wasSuccessful():
+        COV.stop()
+        COV.save()
+        print('Coverage:')
+        COV.report()
+        COV.html_report()
+        COV.erase()
+        return 0
+    sys.exit(result)
+
 
 @cli.command('recreate_db')
 def recreate_db():

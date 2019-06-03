@@ -1,0 +1,5 @@
+[flake8]
+ignore = E226,E302,E41,E261,W291,W292
+max-line-length = 160
+exclude = project/tests/*
+max-complexity = 10
