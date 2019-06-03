@@ -148,7 +148,38 @@ class TestUserService(BaseTestCase):
             self.assertIn('testing123@gmail.com', data['data']['users'][0]['email'])
             self.assertIn('testuser2', data['data']['users'][1]['username'])
             self.assertIn('testingagain@gmail.com', data['data']['users'][1]['email'])
-         
+
+    def test_index_no_users(self):
+        """ Test main route when no users in database """
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'All Users', response.data)
+        self.assertIn(b'<p>No users!</p>', response.data)
+
+    def test_index_all_users(self):
+        """ Test main route when users exist in database """
+        add_user('brent','brent@doil.com')
+        add_user('test', 'testing@test.com')
+        with self.client:
+            response = self.client.get('/')
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b'All Users', response.data)
+            self.assertNotIn(b'<p>No users!</p>', response.data)
+            self.assertIn(b'brent', response.data)
+            self.assertIn(b'test', response.data)
+
+    def test_index_add_user(self):
+        """ New user can be added via form POST """
+        with self.client:
+            response = self.client.post(
+                '/',
+                data=dict(username='test', email='testing@gmail.com'),
+                follow_redirects=True
+            )
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b'All Users', response.data)
+            self.assertNotIn(b'<p>No users!</p>', response.data)
+            self.assertIn(b'test', response.data)
 
 if __name__ == '__main__':
     unittest.main()
