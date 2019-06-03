@@ -6,6 +6,7 @@ from project.api.models import User
 
 from sqlalchemy import exc
 
+
 users_blueprint = Blueprint('users', __name__)
 api = Api(users_blueprint)
 
@@ -54,28 +55,48 @@ class UsersList(Resource):
         # commit transaction to db
         db.session.commit()
         # set response object (placeholder)
-        response_object = {
+        response = {
             "status": "success",
             "message": f"{email} added" 
         }
-        return response_object, 201
+        return response, 201
+
+    def get(self):
+        """ Get all users """
+        response = {
+            'data': {
+                'users': [user.to_json() for user in User.query.all()]
+            },
+            'status': 'success',
+        }
+        return response, 200
 
 class Users(Resource):
     def get(self, user_id):
         """ Get user by user_id """
-        user = User.query.filter_by(id=user_id).first()
         response = {
-            "status": "success",
-            "data": {
-                "id": user.id,
-                "username": user.username,
-                "email": user.email,
-                "active": user.active
-            }
+            'status': 'fail',
+            'message': 'User does not exist'
         }
-        return response, 200
+        try:
+            user = User.query.filter_by(id=int(user_id)).first()
+            if not user:
+                return response, 404
+            else:
+                response = {
+                    "status": "success",
+                    "data": {
+                        "id": user.id,
+                        "username": user.username,
+                        "email": user.email,
+                        "active": user.active
+                    }
+                }
+                return response, 200
+        except ValueError:
+            return response, 404
 
 # Add routes to the api
 api.add_resource(UsersPing, '/users/ping')  #Sanity check
-api.add_resource(UsersList, '/users')       #POST
-api.add_resource(Users, '/users/<user_id>') #GET user
+api.add_resource(UsersList, '/users')      
+api.add_resource(Users, '/users/<user_id>') 
