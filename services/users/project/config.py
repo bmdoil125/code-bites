@@ -1,22 +1,21 @@
 # services/project/config.py
-from dotenv import load_dotenv, find_dotenv
 import os
 
-load_dotenv(find_dotenv())
+
 class BaseConfig:
     """Base Configuration"""
     TESTING = False
-    FLASK_APP = os.getenv('FLASK_APP')
-    FLASK_ENV = os.getenv('FLASK_ENV')
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 class DevConfig(BaseConfig):
     """Development Configuration"""
-    pass
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
 
 class TestConfig(BaseConfig):
     """Testing Configuration"""
     TESTING = True
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_TEST_URL')
 
 class ProdConfig(BaseConfig):
     """Production Configuration"""
-    pass
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
