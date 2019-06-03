@@ -26,6 +26,14 @@ def test():
         return 0
     sys.exit(result)
 
+@cli.command('add_users')
+def add_users():
+    """ Adds test users """
+    db.session.add(User(username='testuser1', email='testing123@gmail.com'))
+    db.session.add(User(username='testuser2', email='testingagain@gmail.com'))
+    db.session.commit()
+
+
 #Instantiate the cli
 if __name__ == '__main__':
     cli()

@@ -11,10 +11,12 @@ def add_user(username, email):
     db.session.commit()
     return user
 
+# TODO - Refactor tests to reduce redundancy
+
 class TestUserService(BaseTestCase):
     """Tests for the Users Service."""
 
-    def test_User(self):
+    def test_user(self):
         """Ensure the /ping route behaves correctly."""
         response = self.client.get('/users/ping')
         data = json.loads(response.data.decode())
