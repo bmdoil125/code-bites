@@ -14,8 +14,8 @@ class App extends Component {
         // adds state property to class, state begins as empty array
         this.state = {
             users: [],
-            username: 'test',
-            email: 'test',
+            username: '',
+            email: '',
         };
         // https://reactjs.org/docs/handling-events.html
         this.addUser = this.addUser.bind(this); // binds the context of 'this' 
@@ -50,10 +50,11 @@ class App extends Component {
         return (
             <section className="section">
                 <div className="container">
-                    <div className="column is-half">
+                    <div className="column is-three-quarters">
                         <br/>
                         <h1 className="title is-1 is-1">All Users</h1>
                         <hr/><br/>
+                        
                         <AddUser 
                             username={this.state.username}
                             email={this.state.email}
@@ -61,7 +62,27 @@ class App extends Component {
                             handleChange={this.handleChange}
                             />
                         <br/><br/>
-                        <UsersList users={this.state.users}/> 
+                        <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>USERNAME</th>
+                                <th>EMAIL</th>
+                            </tr>
+                        </thead>
+                        <tfoot>
+                            <tr>
+                                <th>ID</th>
+                                <th>USERNAME</th>
+                                <th>EMAIL</th> 
+                            </tr>
+                        </tfoot>
+                        <tbody>
+                        <UsersList users={this.state.users}/>
+                        </tbody>
+                        </table>
+
+ 
                     </div>
                 </div>
             </section>

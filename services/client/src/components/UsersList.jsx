@@ -6,19 +6,15 @@ import React from 'react';
 
 const UsersList = (props) => {
     return (
-        <div>
-            {
-                props.users.map((user) => {
-                    return (
-                        <h4
-                        key={user.id}
-                        className="box title is-4"
-                        >{ user.username }
-                        </h4>
-                    )
-                })
-            }
-        </div>
+            props.users.map((user) => {
+                return (
+                    <tr key={user.id}>
+                        <th>{user.id}</th>
+                        <th>{user.username}</th>
+                        <th>{user.email}</th>
+                    </tr>
+                )
+            })
     )
 };
 
