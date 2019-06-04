@@ -6,12 +6,55 @@ from project import db, bcrypt
 
 login_blueprint = Blueprint('login', __name__)
 
+
+@login_blueprint.route('/login', methods=['POST'])
+def login_user():
+    response = {
+    'status': 'fail',
+    'message': 'Invalid payload'
+    }
+
+    # Test for application/json header
+    if not request.headers.get('Content-Type') == 'application/json':
+        response['message'] = 'Invalid header: Content-Type'
+        return jsonify(response), 400
+
+    post_data = request.get_json()
+
+    # empty request
+    if not post_data:
+        response['message'] = 'Empty payload'
+        return jsonify(response), 400
+
+    email = post_data.get('email')
+    password = post_data.get('password')
+
+    try:
+        # get user from db
+        user = User.query.filter_by(email=email).first()
+        if user and bcrypt.check_password_hash(user.password, password): # use bcrypt to verify password
+            token = user.encode_jwt(user.id)                            # if authorized, create JWT
+            if token:                                                   # if valid, return it
+                response['status'] = 'success'
+                response['message'] = 'Logged In'
+                response['token'] = token.decode()
+                return jsonify(response), 200
+        else:
+            response['message'] = 'Username or password incorrect'
+            return jsonify(response), 404
+    except Exception:
+        response['message'] = 'Something went wrong'
+        return jsonify(response), 500
+"""
+@login_blueprint.route('/login/signout', methods=['GET'])
+def logout_user():
+"""
 @login_blueprint.route('/login/register', methods=['POST'])
 def register_user():
-    
-        response = {
-        'status': 'fail',
-        'message': 'Invalid payload'
+
+    response = {
+    'status': 'fail',
+    'message': 'Invalid payload'
     }
 
     # Test for application/json header
