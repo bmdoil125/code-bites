@@ -45,10 +45,42 @@ def login_user():
     except Exception:
         response['message'] = 'Something went wrong'
         return jsonify(response), 500
-"""
+        
+@login_blueprint.route('/login/me', methods=['GET'])
+def logged_in_user():
+    auth = request.headers.get('Authorization')
+
+    response = {
+        'status': 'fail',
+        'message': 'Unauthorized'
+    }
+
+
 @login_blueprint.route('/login/signout', methods=['GET'])
-def logout_user():
-"""
+def signout_user():
+    auth = request.headers.get('Authorization')
+
+    response = {
+        'status': 'fail',
+        'message': 'Unauthorized'
+    }
+    if auth:
+        token = auth.split(' ')[1]
+        sub = User.decode_jwt(token)
+        # if we dont get a string
+        if not isinstance(sub, str):
+            response['status'] = 'success'
+            response['message'] = 'Logged Out'
+            return jsonify(response), 200
+        else: #
+            return jsonify(response), 401
+    else: # Invalid Token
+        response['message'] = 'Forbidden'
+        return jsonify(response), 403
+
+
+
+
 @login_blueprint.route('/login/register', methods=['POST'])
 def register_user():
 
@@ -91,3 +123,4 @@ def register_user():
     except (exc.IntegrityError, ValueError):
         db.session.rollback()
         return jsonify(response), 400
+

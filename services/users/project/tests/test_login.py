@@ -1,10 +1,11 @@
 import json
 import unittest
-
+import sys
 from project import db
 from project.tests.base import BaseTestCase
 from project.api.models import User
 from project.tests.utils import add_user
+from flask import current_app
 
 
 
@@ -119,7 +120,6 @@ class TestLoginRoute(BaseTestCase):
                 content_type='application/json',
             )
             data = json.loads(response.data.decode())
-            print(response.status_code)
             self.assertEqual(response.status_code, 200)
             self.assertTrue(data['status'] == 'success')
             self.assertTrue(data['message'] == 'Logged In')
@@ -136,13 +136,107 @@ class TestLoginRoute(BaseTestCase):
                 content_type='application/json',
             )
             data = json.loads(response.data.decode())
-            print(response.status_code)
             self.assertEqual(response.status_code, 404)
             self.assertTrue(data['status'] == 'fail')
             self.assertTrue(data['message'] == 'Username or password incorrect')
             self.assertTrue(response.content_type == 'application/json')
 
+    def test_user_signout(self):
+        add_user('testname', 'test@ing.com', 'testpass')
+        with self.client:
+            login_response = self.client.post(
+                '/login',
+                data=json.dumps(user_login),
+                content_type='application/json'
+            )
+            login_data = json.loads(login_response.data.decode())
+            token = login_data['token']
 
+            response = self.client.get(
+                '/login/signout',
+                headers={'Authorization': f'Bearer {token}'}
+            )
+            data = json.loads(response.data.decode())
+            self.assertTrue(data['status'] == 'success')
+            self.assertTrue(data['message'] == 'Logged Out')
+            self.assertEqual(response.status_code, 200)
+
+    def test_user_signout_expired_token(self):
+        """ Test signout with expired JWT """
+        add_user('testname', 'test@ing.com', 'testpass')
+
+        current_app.config['TOKEN_EXPIRATION_SECONDS'] = -1
+
+        with self.client:
+            login_response = self.client.post(
+                '/login',
+                data=json.dumps(user_login),
+                content_type='application/json'
+            )
+
+            # get token from login response
+            login_data = json.loads(login_response.data.decode())
+            token = login_data['token']
+
+            response = self.client.get(
+                '/login/signout',
+                headers={'Authorization': f'Bearer {token}'},
+                content_type='application/json'
+            )
+            data = json.loads(response.data.decode())
+            self.assertTrue(data['status'] == 'fail')
+            self.assertTrue(data['message'] == 'Unauthorized')
+            self.assertEqual(response.status_code, 401)
+
+    def test_user_signout_invalid_token(self):
+        """ Test signout with invalid JWT """
+        with self.client:
+            response = self.client.get(
+                '/login/signout',
+                headers={'Authorization': 'Bearer fail'},
+                content_type='application/json'
+            )
+            data = json.loads(response.data.decode())
+            print(data['message'],file=sys.stderr)
+            self.assertTrue(data['status'] == 'fail')
+            self.assertTrue(data['message'] == 'Unauthorized')
+            self.assertEqual(response.status_code, 401)
+
+    def test_user_me(self):
+        """ Test logged in user route """
+        add_user('testname', 'test@ing.com', 'testpass')
+        with self.client:
+            login_response = self.client.post(
+                '/login',
+                data=json.dumps(user_login),
+                content_type='application/json'
+            )
+            login_data = json.loads(login_response.data.decode())
+            token = login_data['token']
+
+            response = self.client.get(
+                '/login/me',
+                headers={'Authorization': f'Bearer {token}'}
+            )
+            data = json.loads(response.data.decode())
+            self.assertTrue(data['message'] == 'success')
+            self.assertTrue(data['data'] is not None)
+            self.assertTrue(data['data']['username'] == 'testname')
+            self.assertTrue(data['data']['email'] == 'test@ing.com')
+            self.assertEqual(response.status_code, 200)
+
+    def test_user_me_invalid(self):
+        """ Test logged in user route with invalid token """
+        with self.client:
+            response = self.client.get(
+                '/login/me',
+                headers={'Authorization': 'Bearer fail'},
+                content_type='application/json'
+            )
+            data = json.loads(response.data.decode())
+            self.assertTrue(data['status'] == 'fail')
+            self.assertTrue(data['message'] == 'Unauthorized')
+            self.assertEqual(response.status_code, 401)
 
 user_reg_correct = {
     'username': 'testname',
