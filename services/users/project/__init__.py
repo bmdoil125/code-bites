@@ -41,9 +41,12 @@ def create_app(script_info=None):
     migrate.init_app(app, db)
     # set up pass hashing
     bcrypt.init_app(app)
+    
     # imported here to avoid circular import
     from project.api.users import users_blueprint
     app.register_blueprint(users_blueprint)
+    from project.api.login import login_blueprint
+    app.register_blueprint(login_blueprint)
 
     '''
     shell context for flask cli used to register the app and db to the shell to work with the application context and db
