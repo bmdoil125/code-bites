@@ -2,3 +2,6 @@ env
 .dockerignore
 __pycache__
 htmlcov
+migrations
+Dockerfile
+Dockefile-prod

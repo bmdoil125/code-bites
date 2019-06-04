@@ -4,12 +4,8 @@ import unittest
 from project import db
 from project.tests.base import BaseTestCase
 from project.api.models import User
+from project.tests.utils import add_user
 
-def add_user(username, email):
-    user = User(username=username, email=email)
-    db.session.add(user)
-    db.session.commit()
-    return user
 
 # TODO - Refactor tests to reduce redundancy
 
@@ -150,14 +146,14 @@ class TestUserService(BaseTestCase):
             self.assertIn('testingagain@gmail.com', data['data']['users'][1]['email'])
 
     def test_index_no_users(self):
-        """ Test main route when no users in database """
+        """ Test main route when no users in database: Status 200 """
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'All Users', response.data)
         self.assertIn(b'<p>No users!</p>', response.data)
 
     def test_index_all_users(self):
-        """ Test main route when users exist in database """
+        """ Test main route when users exist in database: Status 200 """
         add_user('brent','brent@doil.com')
         add_user('test', 'testing@test.com')
         with self.client:

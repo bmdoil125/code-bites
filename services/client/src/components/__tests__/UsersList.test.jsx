@@ -21,9 +21,12 @@ const users = [
 // https://stackoverflow.com/questions/38710309/when-should-you-use-render-and-shallow-in-enzyme-react-tests/38747914#38747914
 test('UsersList renders', () => {
     const wrapper = shallow(<UsersList users={users}/>);    //create UsersList component
-    const element = wrapper.find('h4')                      // get output of UsersList
-    expect(element.length).toBe(2)                  
-    expect(element.get(0).props.children).toBe('brent');    
+    const row = wrapper.find('tr')                      // get output of UsersList
+    expect(row.length).toBe(2)
+    const element = wrapper.find('th')
+    expect(element.length).toBe(6)
+    expect(element.get(0).props.children).toBe(1);
+    expect(element.get(1).props.children).toBe('brent');    
 })
 // snapshot is saved to __snapshots__
 // on subsequent runs new output will be compared to saved output

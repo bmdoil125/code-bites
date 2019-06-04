@@ -5,7 +5,7 @@ from flask_restful import Resource, Api
 from flask_sqlalchemy import SQLAlchemy
 from flask_debugtoolbar import DebugToolbarExtension
 from flask_cors import CORS
-
+from flask_migrate import Migrate
 
 # instantiate db
 db = SQLAlchemy()
@@ -16,6 +16,8 @@ toolbar = DebugToolbarExtension()
 #instantiate CORS
 cors = CORS()
 
+# instantiate db migrations
+migrate = Migrate()
 # Application Factory -- instantiate app
 def create_app(script_info=None):
     app = Flask(__name__)
@@ -30,6 +32,8 @@ def create_app(script_info=None):
     toolbar.init_app(app)
     # set up CORS extension
     cors.init_app(app)
+    # set up flask migrate
+    migrate.init_app(app, db)
 
     # imported here to avoid circular import
     from project.api.users import users_blueprint
