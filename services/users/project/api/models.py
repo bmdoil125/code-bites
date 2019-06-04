@@ -2,6 +2,8 @@ from sqlalchemy.sql import func
 
 from project import db, bcrypt
 from flask import current_app
+import jwt
+import datetime
 
 class User(db.Model):  
     __tablename__ = 'users'
@@ -24,3 +26,35 @@ class User(db.Model):
             'email': self.email,
             'active': self.active
         }
+    
+    def encode_jwt(self, user_id):
+        """ Generate JWT """
+        try: 
+            # JWT Claims http://self-issued.info/docs/draft-ietf-oauth-json-web-token.html#RegisteredClaimName
+            payload = { 
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(
+                    days=current_app.config.get('TOKEN_EXPIRATION_DAYS'),
+                    seconds=current_app.config.get('TOKEN_EXPIRATION_SECONDS'),
+                ),
+                'iat': datetime.datetime.utcnow(),
+                'sub': user_id,
+            }
+            return jwt.encode(
+                payload,
+                current_app.config.get('SECRET_KEY'),
+                algorithm='HS256'
+            )
+        except Exception as e:
+            return e
+
+    # static methods can be called on a class or an instance        
+    @staticmethod
+    def decode_jwt(token):
+        """ Decode JWT """
+        try:
+            payload = jwt.decode(token, current_app.config.get('SECRET_KEY'))
+            return payload['sub']
+        except jwt.ExpiredSignatureError:
+            return 'Please log in again.'
+        except jwt.InvalidTokenError:
+            return 'Invalid token. Please log in again.'

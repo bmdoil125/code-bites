@@ -37,5 +37,16 @@ class TestUserModel(BaseTestCase):
         user_one = add_user('test', 'test@test.com', 'testpass')
         user_two = add_user('test2', 'test2@test.com', 'testpass')
 
+    def test_encode_jwt(self):
+        user = add_user('test', 'test@test.com', 'testpass')
+        token = user.encode_jwt(user.id)
+        self.assertTrue(isinstance(token, bytes))
+
+    def test_decode_jwt(self):
+        user = add_user('test','test@test.com', 'testpass')
+        token = user.encode_jwt(user.id)
+        self.assertTrue(isinstance(token, bytes))
+        self.assertEqual(User.decode_jwt(token), user.id)
+
 if __name__ == '__main__':
     unittest.main()
