@@ -16,6 +16,7 @@ class App extends Component {
             users: [],
             username: '',
             email: '',
+            password: '',
         };
         // https://reactjs.org/docs/handling-events.html
         this.addUser = this.addUser.bind(this); // binds the context of 'this' 
@@ -36,14 +37,15 @@ class App extends Component {
         // bundle up the data
         const data = {
             username: this.state.username,
-            email: this.state.email
+            email: this.state.email,
+            password: this.state.password,
         };
         // ajax request to backend
         axios.post(`${process.env.REACT_APP_USERS_SERVICE_URL}/users`, data)
         .then((res) => { 
             this.getUsers(); //update users list
-            this.setState( {username: '', email: '' }) }) //reset form state
-        .catch((err) => { console.log(err); });
+            this.setState( {username: '', email: '', password: '' }) }) //reset form state
+        .catch((err) => { console.log(err.response); });
     };
 
     render() {
@@ -62,7 +64,7 @@ class App extends Component {
                             handleChange={this.handleChange}
                             />
                         <br/><br/>
-                        <table class="table">
+                        <table className="table">
                         <thead>
                             <tr>
                                 <th>ID</th>

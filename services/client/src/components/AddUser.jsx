@@ -27,6 +27,17 @@ const AddUser = (props) => {
             onChange={props.handleChange}
           />
         </div>
+        <div className="field">
+          <input
+            name="password"
+            className="input is-large"
+            type="password"
+            placeholder="Enter a password"
+            required
+            value={props.password}
+            onChange={props.handleChange}
+          />
+        </div>
         <input
           type="submit"
           className="button is-primary is-large is-fullwidth"
