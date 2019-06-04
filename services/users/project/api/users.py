@@ -15,7 +15,8 @@ def index():
     if request.method == 'POST':
         username = request.form['username']
         email = request.form['email']
-        db.session.add(User(username=username, email=email))
+        password = request.form['password']
+        db.session.add(User(username=username, email=email, password=password))
         db.session.commit()
     users = User.query.all()
     return render_template('index.html', users=users)
@@ -41,12 +42,13 @@ class UsersList(Resource):
 
         username = post_data.get('username')
         email = post_data.get('email')
+        password = post_data.get('password')
 
         #  test User constraints
         try:
             user = User.query.filter_by(email=email).first() # get first record that matches email
             if not user:
-                db.session.add(User(username=username, email=email)) #  add new user
+                db.session.add(User(username=username, email=email, password=password)) #  add new user
                 db.session.commit() # commit to db
                 response['status'] = 'success'
                 response['message'] = f'{email} added.'
@@ -55,7 +57,7 @@ class UsersList(Resource):
                 response['message'] = 'Email already exists'
                 return response, 400
         #  Handle db exception
-        except exc.IntegrityError:
+        except (exc.IntegrityError, ValueError):
             db.session.rollback() #  must rollback any changes
             return response, 400
         username = post_data.get('username')

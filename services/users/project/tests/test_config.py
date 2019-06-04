@@ -8,6 +8,7 @@ from flask import current_app
 from flask_testing import TestCase
 from project import create_app
 
+
 app = create_app()
 
 class TestDevelopmentConfig(TestCase):
@@ -39,6 +40,7 @@ class TestTestingConfig(TestCase):
             os.environ.get('DATABASE_TEST_URL')
         )
         self.assertFalse(app.config['DEBUG_TOOLBAR'])
+        self.assertTrue(app.config['BCRYPT_LOG_ROUNDS'] == 4)
 
 
 class TestProductionConfig(TestCase):
@@ -50,6 +52,7 @@ class TestProductionConfig(TestCase):
         self.assertTrue(app.config['SECRET_KEY'] == 'supersecretkey')
         self.assertFalse(app.config['TESTING'])
         self.assertFalse(app.config['DEBUG_TOOLBAR'])
+        self.assertTrue(app.config['BCRYPT_LOG_ROUNDS'] == 12)
 
 
 if __name__ == '__main__':

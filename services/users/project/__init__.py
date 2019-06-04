@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_debugtoolbar import DebugToolbarExtension
 from flask_cors import CORS
 from flask_migrate import Migrate
+from flask_bcrypt import Bcrypt
 
 # instantiate db
 db = SQLAlchemy()
@@ -18,6 +19,10 @@ cors = CORS()
 
 # instantiate db migrations
 migrate = Migrate()
+
+# instantiate password hashing
+bcrypt = Bcrypt()
+
 # Application Factory -- instantiate app
 def create_app(script_info=None):
     app = Flask(__name__)
@@ -34,7 +39,8 @@ def create_app(script_info=None):
     cors.init_app(app)
     # set up flask migrate
     migrate.init_app(app, db)
-
+    # set up pass hashing
+    bcrypt.init_app(app)
     # imported here to avoid circular import
     from project.api.users import users_blueprint
     app.register_blueprint(users_blueprint)
