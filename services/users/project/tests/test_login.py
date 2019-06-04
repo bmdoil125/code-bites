@@ -213,13 +213,16 @@ class TestLoginRoute(BaseTestCase):
             )
             login_data = json.loads(login_response.data.decode())
             token = login_data['token']
-
+            
             response = self.client.get(
                 '/login/me',
-                headers={'Authorization': f'Bearer {token}'}
+                headers={'Authorization': f'Bearer {token}'},
+                content_type='application/json'
             )
             data = json.loads(response.data.decode())
-            self.assertTrue(data['message'] == 'success')
+            print(data)
+            self.assertTrue(data['message'] == 'Success')
+            self.assertTrue(data['status'] == 'success')
             self.assertTrue(data['data'] is not None)
             self.assertTrue(data['data']['username'] == 'testname')
             self.assertTrue(data['data']['email'] == 'test@ing.com')
@@ -230,10 +233,11 @@ class TestLoginRoute(BaseTestCase):
         with self.client:
             response = self.client.get(
                 '/login/me',
-                headers={'Authorization': 'Bearer fail'},
+                headers={'Authorization': f'Bearer fail'},
                 content_type='application/json'
             )
             data = json.loads(response.data.decode())
+            print(data)
             self.assertTrue(data['status'] == 'fail')
             self.assertTrue(data['message'] == 'Unauthorized')
             self.assertEqual(response.status_code, 401)

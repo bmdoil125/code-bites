@@ -14,11 +14,11 @@ def login_user():
     'message': 'Invalid payload'
     }
 
-    # Test for application/json header
+    """ Test for application/json header
     if not request.headers.get('Content-Type') == 'application/json':
         response['message'] = 'Invalid header: Content-Type'
         return jsonify(response), 400
-
+    """
     post_data = request.get_json()
 
     # empty request
@@ -45,25 +45,43 @@ def login_user():
     except Exception:
         response['message'] = 'Something went wrong'
         return jsonify(response), 500
-        
+
 @login_blueprint.route('/login/me', methods=['GET'])
-def logged_in_user():
+def current_user():
     auth = request.headers.get('Authorization')
 
     response = {
         'status': 'fail',
         'message': 'Unauthorized'
     }
+
+    if auth:
+        token = auth.split(' ')[1]
+        sub = User.decode_jwt(token)
+        if not isinstance(sub, str):
+            user = User.query.filter_by(id=sub).first()
+            response['status'] = 'success'
+            response['message'] = 'Success'
+            response['data'] = user.to_json()
+            return jsonify(response), 200
+        else: 
+            response['message'] = 'Unauthorized'
+            return jsonify(response), 401
+    else:
+        response['message'] = 'Unauthorized'
+        return jsonify(response), 401
 
 
 @login_blueprint.route('/login/signout', methods=['GET'])
 def signout_user():
+
     auth = request.headers.get('Authorization')
 
     response = {
         'status': 'fail',
         'message': 'Unauthorized'
     }
+
     if auth:
         token = auth.split(' ')[1]
         sub = User.decode_jwt(token)
