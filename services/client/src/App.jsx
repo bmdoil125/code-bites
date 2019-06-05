@@ -27,11 +27,15 @@ class App extends Component {
                 email: '',
                 password: '',
             },
+            isAuthenticated: false,
         };
 
         // https://reactjs.org/docs/handling-events.html
         this.addUser = this.addUser.bind(this); // binds the context of 'this' 
-        this.handleChange = this.handleChange.bind(this)
+        this.handleChange = this.handleChange.bind(this);
+        this.handleUserFormSubmit = this.handleUserFormSubmit.bind(this);
+        this.handleFormChange = this.handleFormChange.bind(this);
+        this.clearFormState = this.clearFormState.bind(this);
     };
     // Avoids race condition, fire after DOM rendered
     componentDidMount() {
@@ -43,6 +47,46 @@ class App extends Component {
         obj[event.target.name] = event.target.value;
         this.setState(obj)
     }
+
+    handleUserFormSubmit(event) {
+        event.preventDefault();
+        const formType = window.location.href.split('/').reverse()[0];
+        let data = {
+          email: this.state.formData.email,
+          password: this.state.formData.password,
+        };
+        if (formType === 'register') {
+          data.username = this.state.formData.username
+        }
+        const url = `${process.env.REACT_APP_USERS_SERVICE_URL}/login/${formType}`
+        axios.post(url, data)
+        .then((res) => {
+          console.log(res.data);
+          this.clearFormState();
+          window.localStorage.setItem('token', res.data.token);
+          this.setState({ isAuthenticated: true, });
+          this.getUsers();
+          
+        })
+        .catch((err) => { console.log(err) })
+        
+    };
+    // Handler for any form change, i.e. input
+    handleFormChange(event) {
+      const obj = this.state.formData;
+      obj[event.target.name] = event.target.value
+      this.setState(obj);
+      console.log(this.state.formData);
+    }
+
+    clearFormState(event) {
+      this.setState({
+        formData: { username: '', email: '', password: ''},
+        username: '',
+        email: '',
+      });
+    };
+
     addUser(event) {
         event.preventDefault();
         // bundle up the data
@@ -106,11 +150,18 @@ class App extends Component {
                       <Form
                         formType={'Register'}
                         formData={this.state.formData}
+                        handleUserFormSubmit={this.handleUserFormSubmit}
+                        handleFormChange={this.handleFormChange}
+                        isAuthenticated={this.state.isAuthenticated}
                         />
                   )} />
                   <Route exact path='/login' render={() => (
-                      <Form formType={'Login'}
+                      <Form 
+                      formType={'Login'}
                       formData={this.state.formData}
+                      handleUserFormSubmit={this.handleUserFormSubmit}
+                      handleFormChange={this.handleFormChange}
+                      isAuthenticated={this.state.isAuthenticated}
                       />
                   )} />
                 </Switch>
@@ -127,6 +178,7 @@ class App extends Component {
         .then((res) => { this.setState({ users: res.data.data.users }); })
         .catch((err) => { console.log(err); });
     };
+
 
 
 };

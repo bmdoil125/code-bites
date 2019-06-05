@@ -7,7 +7,7 @@ from project import db, bcrypt
 login_blueprint = Blueprint('login', __name__)
 
 
-@login_blueprint.route('/login', methods=['POST'])
+@login_blueprint.route('/login/login', methods=['POST'])
 def login_user():
     response = {
     'status': 'fail',
@@ -107,11 +107,11 @@ def register_user():
     'message': 'Invalid payload'
     }
 
-    # Test for application/json header
+    """ Test for application/json header
     if not request.headers.get('Content-Type') == 'application/json':
         response['message'] = 'Invalid header: Content-Type'
         return jsonify(response), 400
-
+    """
     post_data = request.get_json()
 
     # empty request

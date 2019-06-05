@@ -1,6 +1,11 @@
 import React from 'react';
+import { Redirect } from 'react-router-dom';
 
 const Form = (props) => {
+    // Send user to main page if they are authenticated
+    if (props.isAuthenticated) {
+        return <Redirect to='/' />;
+    }
     return (
         <div>
             {props.formType === 'Login' &&
