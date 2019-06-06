@@ -40,7 +40,7 @@ class TestLoginRoute(BaseTestCase):
 
     """
     def test_user_reg_html_content(self):
-        """ Test user sending wrong content type """
+        
         with self.client:
             response = self.client.post(
                 '/login/register',
