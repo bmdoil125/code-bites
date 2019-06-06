@@ -73,10 +73,10 @@ exports[`Navbar snapshot renders 1`] = `
         </a>
         <a
           className="navbar-item"
-          href="/logout"
+          href="/signout"
           onClick={[Function]}
         >
-          Logout
+          Signout
         </a>
       </div>
     </div>

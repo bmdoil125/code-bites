@@ -27,7 +27,7 @@ const NavBar = (props) => (
                 <div className="navbar-end">
                     <Link to="/register" className="navbar-item">Register</Link>
                     <Link to="/login" className="navbar-item">Login</Link>
-                    <Link to="/logout" className="navbar-item">Logout</Link>
+                    <Link to="/signout" className="navbar-item">Signout</Link>
                 </div>
             </div>
         </section>

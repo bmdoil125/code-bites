@@ -5,8 +5,8 @@ import UsersList from './components/UsersList';
 import AddUser from './components/AddUser';
 import About from './components/About';
 import NavBar from './components/NavBar';
-import Form from './components/Form'
-
+import Form from './components/Form';
+import Signout from './components/Signout';
 
 /* 
 Class based component. Runs when instance is created.
@@ -36,6 +36,7 @@ class App extends Component {
         this.handleUserFormSubmit = this.handleUserFormSubmit.bind(this);
         this.handleFormChange = this.handleFormChange.bind(this);
         this.clearFormState = this.clearFormState.bind(this);
+        this.signoutUser = this.signoutUser.bind(this);
     };
     // Avoids race condition, fire after DOM rendered
     componentDidMount() {
@@ -103,6 +104,11 @@ class App extends Component {
         .catch((err) => { console.log(err.response); });
     };
 
+    signoutUser(event) {
+      window.localStorage.clear();
+      this.setState( { isAuthenticated: false });
+    };
+
   render() {
     return (
       <div>
@@ -163,6 +169,12 @@ class App extends Component {
                       handleFormChange={this.handleFormChange}
                       isAuthenticated={this.state.isAuthenticated}
                       />
+                  )} />
+                  <Route exact path='/signout' render={() => (
+                    <Signout
+                      signoutUser={this.signoutUser}
+                      isAuthenticated={this.state.isAuthenticated}
+                    />
                   )} />
                 </Switch>
               </div>
