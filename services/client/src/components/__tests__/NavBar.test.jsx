@@ -1,6 +1,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import renderer from 'react-test-renderer';
+
 // https://reacttraining.com/react-router/core/api/MemoryRouter
 import { MemoryRouter as Router } from 'react-router-dom'
 

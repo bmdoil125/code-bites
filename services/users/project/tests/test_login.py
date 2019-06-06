@@ -115,7 +115,7 @@ class TestLoginRoute(BaseTestCase):
         with self.client:
             add_user('testname', 'test@ing.com', 'testpass')
             response = self.client.post(
-                '/login',
+                '/login/login',
                 data=json.dumps(user_login),
                 content_type='application/json',
             )
@@ -131,7 +131,7 @@ class TestLoginRoute(BaseTestCase):
         """ Test unregistered user login """
         with self.client:
             response = self.client.post(
-                '/login',
+                '/login/login',
                 data=json.dumps(user_login),
                 content_type='application/json',
             )
@@ -145,7 +145,7 @@ class TestLoginRoute(BaseTestCase):
         add_user('testname', 'test@ing.com', 'testpass')
         with self.client:
             login_response = self.client.post(
-                '/login',
+                '/login/login',
                 data=json.dumps(user_login),
                 content_type='application/json'
             )
@@ -169,7 +169,7 @@ class TestLoginRoute(BaseTestCase):
 
         with self.client:
             login_response = self.client.post(
-                '/login',
+                '/login/login',
                 data=json.dumps(user_login),
                 content_type='application/json'
             )
@@ -207,7 +207,7 @@ class TestLoginRoute(BaseTestCase):
         add_user('testname', 'test@ing.com', 'testpass')
         with self.client:
             login_response = self.client.post(
-                '/login',
+                '/login/login',
                 data=json.dumps(user_login),
                 content_type='application/json'
             )
