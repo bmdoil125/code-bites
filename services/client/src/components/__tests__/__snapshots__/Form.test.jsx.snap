@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Login Form renders a snapshot 1`] = `
+exports[`Not authenticated Login Form renders snapshot 1`] = `
 <div>
   <h1
     className="title is-1"
@@ -18,6 +18,7 @@ exports[`Login Form renders a snapshot 1`] = `
       <input
         className="input is-medium"
         name="email"
+        onChange={[MockFunction]}
         placeholder="Enter an email"
         required={true}
         type="email"
@@ -30,6 +31,7 @@ exports[`Login Form renders a snapshot 1`] = `
       <input
         className="input is-medium"
         name="password"
+        onChange={[MockFunction]}
         placeholder="Enter a password"
         required={true}
         type="password"
@@ -45,52 +47,7 @@ exports[`Login Form renders a snapshot 1`] = `
 </div>
 `;
 
-exports[`Login Form renders snapshot 1`] = `
-<div>
-  <h1
-    className="title is-1"
-  >
-    Log In
-  </h1>
-  <hr />
-  <br />
-  <form
-    onSubmit={[Function]}
-  >
-    <div
-      className="field"
-    >
-      <input
-        className="input is-medium"
-        name="email"
-        placeholder="Enter an email"
-        required={true}
-        type="email"
-        value=""
-      />
-    </div>
-    <div
-      className="field"
-    >
-      <input
-        className="input is-medium"
-        name="password"
-        placeholder="Enter a password"
-        required={true}
-        type="password"
-        value=""
-      />
-    </div>
-    <input
-      className="button is-primary is-medium is-fullwidth"
-      type="submit"
-      value="Submit"
-    />
-  </form>
-</div>
-`;
-
-exports[`Register Form renders a snapshot 1`] = `
+exports[`Not authenticated Register Form renders snapshot 1`] = `
 <div>
   <h1
     className="title is-1"
@@ -108,6 +65,7 @@ exports[`Register Form renders a snapshot 1`] = `
       <input
         className="input is-medium"
         name="username"
+        onChange={[MockFunction]}
         placeholder="Enter a username"
         required={true}
         type="text"
@@ -120,6 +78,7 @@ exports[`Register Form renders a snapshot 1`] = `
       <input
         className="input is-medium"
         name="email"
+        onChange={[MockFunction]}
         placeholder="Enter an email"
         required={true}
         type="email"
@@ -132,63 +91,7 @@ exports[`Register Form renders a snapshot 1`] = `
       <input
         className="input is-medium"
         name="password"
-        placeholder="Enter a password"
-        required={true}
-        type="password"
-        value=""
-      />
-    </div>
-    <input
-      className="button is-primary is-medium is-fullwidth"
-      type="submit"
-      value="Submit"
-    />
-  </form>
-</div>
-`;
-
-exports[`Register Form renders snapshot 1`] = `
-<div>
-  <h1
-    className="title is-1"
-  >
-    Register
-  </h1>
-  <hr />
-  <br />
-  <form
-    onSubmit={[Function]}
-  >
-    <div
-      className="field"
-    >
-      <input
-        className="input is-medium"
-        name="username"
-        placeholder="Enter a username"
-        required={true}
-        type="text"
-        value=""
-      />
-    </div>
-    <div
-      className="field"
-    >
-      <input
-        className="input is-medium"
-        name="email"
-        placeholder="Enter an email"
-        required={true}
-        type="email"
-        value=""
-      />
-    </div>
-    <div
-      className="field"
-    >
-      <input
-        className="input is-medium"
-        name="password"
+        onChange={[MockFunction]}
         placeholder="Enter a password"
         required={true}
         type="password"
