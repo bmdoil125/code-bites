@@ -7,6 +7,7 @@ import About from './components/About';
 import NavBar from './components/NavBar';
 import Form from './components/Form';
 import Signout from './components/Signout';
+import CurrentUser from './components/CurrentUser';
 
 /* 
 Class based component. Runs when instance is created.
@@ -112,7 +113,7 @@ class App extends Component {
   render() {
     return (
       <div>
-        <NavBar title={this.state.title} />
+        <NavBar title={this.state.title} isAuthenticated={this.state.isAuthenticated}/>
         <section className="section">
           <div className="container">
             <div className="columns">
@@ -176,6 +177,10 @@ class App extends Component {
                       isAuthenticated={this.state.isAuthenticated}
                     />
                   )} />
+                  <Route exact path='/me' render={() => (
+                    <CurrentUser isAuthenticated={this.state.isAuthenticated}
+                  />
+                  )}/>
                 </Switch>
               </div>
             </div>
