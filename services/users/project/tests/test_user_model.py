@@ -14,16 +14,17 @@ class TestUserModel(BaseTestCase):
         self.assertEqual(user.email,'test@email.com')
         self.assertTrue(user.password)
         self.assertTrue(user.active)
+        self.assertFalse(user.admin)
 
     def test_add_duplicate_username(self):
-        user = add_user('testname','test@email.com', 'testpass')
+        add_user('testname','test@email.com', 'testpass')
         dup_user = User(username='testname', email='test2@email.com', password='testpass')
         db.session.add(dup_user)
         with self.assertRaises(IntegrityError): # Adding dup user should trigger integrity error
             db.session.commit()
 
     def test_add_duplicate_email(self):
-        user = add_user('testname','test@email.com', 'testpass')
+        add_user('testname','test@email.com', 'testpass')
         dup_user = User(username='testname2', email='test@email.com', password='testpass')
         db.session.add(dup_user)
         with self.assertRaises(IntegrityError): # Adding dup user should trigger integrity error
@@ -36,6 +37,7 @@ class TestUserModel(BaseTestCase):
     def test_passwords(self):
         user_one = add_user('test', 'test@test.com', 'testpass')
         user_two = add_user('test2', 'test2@test.com', 'testpass')
+        self.assertNotEqual(user_one.password, user_two.password)
 
     def test_encode_jwt(self):
         user = add_user('test', 'test@test.com', 'testpass')

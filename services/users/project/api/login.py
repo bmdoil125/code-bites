@@ -3,6 +3,7 @@ from sqlalchemy import exc, or_
 
 from project.api.models import User
 from project import db, bcrypt
+from project.api.utils import authenticate
 
 login_blueprint = Blueprint('login', __name__)
 
@@ -47,61 +48,29 @@ def login_user():
         return jsonify(response), 500
 
 @login_blueprint.route('/login/me', methods=['GET'])
-def current_user():
-    auth = request.headers.get('Authorization')
-
+@authenticate
+def current_user(sub):
+    user = User.query.filter_by(id=sub).first()
     response = {
-        'status': 'fail',
-        'message': 'Unauthorized'
+        'status': 'success',
+        'message': 'Success',
+        'data': user.to_json()
     }
+    return jsonify(response), 200
 
-    if auth:
-        token = auth.split(' ')[1]
-        sub = User.decode_jwt(token)
-        if not isinstance(sub, str):
-            user = User.query.filter_by(id=sub).first()
-            response['status'] = 'success'
-            response['message'] = 'Success'
-            response['data'] = user.to_json()
-            return jsonify(response), 200
-        else: 
-            response['message'] = 'Unauthorized'
-            return jsonify(response), 401
-    else:
-        response['message'] = 'Unauthorized'
-        return jsonify(response), 401
 
 
 @login_blueprint.route('/login/signout', methods=['GET'])
-def signout_user():
-
-    auth = request.headers.get('Authorization')
-
+@authenticate
+def signout_user(sub):
     response = {
-        'status': 'fail',
-        'message': 'Unauthorized'
+        'status': 'success',
+        'message': 'Logged Out'
     }
-
-    if auth:
-        token = auth.split(' ')[1]
-        sub = User.decode_jwt(token)
-        # if we dont get a string
-        if not isinstance(sub, str):
-            response['status'] = 'success'
-            response['message'] = 'Logged Out'
-            return jsonify(response), 200
-        else: #
-            return jsonify(response), 401
-    else: # Invalid Token
-        response['message'] = 'Forbidden'
-        return jsonify(response), 403
-
-
-
+    return jsonify(response), 200
 
 @login_blueprint.route('/login/register', methods=['POST'])
 def register_user():
-
     response = {
     'status': 'fail',
     'message': 'Invalid payload'

@@ -11,20 +11,24 @@ class User(db.Model):
     username = db.Column(db.String(128), unique=True, nullable=False)
     email = db.Column(db.String(128), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
-    active = db.Column(db.Boolean(), default=True, nullable=False)
+    active = db.Column(db.Boolean, default=True, nullable=False)
     created_date = db.Column(db.DateTime, default=func.now(), nullable=False)
+    admin = db.Column(db.Boolean, default=False, nullable=False)
 
-    def __init__(self, username, email, password):
+    def __init__(self, username, email, password, active=True, admin=False):
         self.username = username
         self.email = email
-        self.password = bcrypt.generate_password_hash(password, current_app.config.get('BCRYPT_LOG_ROUNDS')).decode()
+        self.password = bcrypt.generate_password_hash(password, current_app.config.get('BCRYPT_LOG_ROUNDS')).decode(),
+        self.active = active
+        self.admin = admin
 
     def to_json(self):
         return {
             'id': self.id,
             'username': self.username,
             'email': self.email,
-            'active': self.active
+            'active': self.active,
+            'admin': self.admin
         }
     
     def encode_jwt(self, user_id):
@@ -57,4 +61,4 @@ class User(db.Model):
         except jwt.ExpiredSignatureError:
             return 'Please log in again.'
         except jwt.InvalidTokenError:
-            return 'Invalid token. Please log in again.'
+            return 'Unauthorized'

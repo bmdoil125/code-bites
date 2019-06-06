@@ -5,6 +5,8 @@ from project import db
 from project.tests.base import BaseTestCase
 from project.api.models import User
 from project.tests.utils import add_user
+from project import db
+from project.api.models import User
 from flask import current_app
 
 
@@ -185,8 +187,9 @@ class TestLoginRoute(BaseTestCase):
                 content_type='application/json'
             )
             data = json.loads(response.data.decode())
+            print(data)
             self.assertTrue(data['status'] == 'fail')
-            self.assertTrue(data['message'] == 'Unauthorized')
+            self.assertTrue(data['message'] == 'Please log in again.')
             self.assertEqual(response.status_code, 401)
 
     def test_user_signout_invalid_token(self):
@@ -198,7 +201,6 @@ class TestLoginRoute(BaseTestCase):
                 content_type='application/json'
             )
             data = json.loads(response.data.decode())
-            print(data['message'],file=sys.stderr)
             self.assertTrue(data['status'] == 'fail')
             self.assertTrue(data['message'] == 'Unauthorized')
             self.assertEqual(response.status_code, 401)
@@ -227,6 +229,7 @@ class TestLoginRoute(BaseTestCase):
             self.assertTrue(data['data'] is not None)
             self.assertTrue(data['data']['username'] == 'testname')
             self.assertTrue(data['data']['email'] == 'test@ing.com')
+            self.assertFalse(data['data']['admin'])
             self.assertEqual(response.status_code, 200)
 
     def test_user_me_invalid(self):
@@ -242,6 +245,59 @@ class TestLoginRoute(BaseTestCase):
             self.assertTrue(data['status'] == 'fail')
             self.assertTrue(data['message'] == 'Unauthorized')
             self.assertEqual(response.status_code, 401)
+
+    def test_user_signout_inactive(self):
+        add_user('testname', 'test@ing.com', 'testpass')
+        # update user to inactive
+        user = User.query.filter_by(email='test@ing.com').first()
+        user.active = False
+        db.session.commit()
+        with self.client:
+            login_response = self.client.post(
+                '/login/login',
+                data=json.dumps({
+                    'email': 'test@ing.com',
+                    'password': 'testpass'
+                }),
+                content_type='application/json'
+            )
+            token = json.loads(login_response.data.decode())['token']
+            response = self.client.get(
+                '/login/signout',
+                headers={'Authorization': f'Bearer {token}'}
+            )
+            data = json.loads(response.data.decode())
+            self.assertTrue(data['status'] == 'fail')
+            self.assertTrue(data['message'] == 'Unauthorized')
+            self.assertEqual(response.status_code, 401)
+            
+    def test_user_currentstatus_inactive(self):
+        """ Test GET /login/me endpoint inactive user """
+        add_user('testname', 'test@ing.com', 'testpass')
+        # update user to inactive
+        user = User.query.filter_by(email='test@ing.com').first()
+        user.active = False
+        db.session.commit()
+        with self.client:
+            login_response = self.client.post(
+                '/login/login',
+                data=json.dumps({
+                    'email': 'test@ing.com',
+                    'password': 'testpass'
+                }),
+                content_type='application/json'
+            )
+            token = json.loads(login_response.data.decode())['token']
+            response = self.client.get(
+                '/login/me',
+                headers={'Authorization': f'Bearer {token}'}
+            )
+            data = json.loads(response.data.decode())
+            self.assertTrue(data['status'] == 'fail')
+            self.assertTrue(data['message'] == 'Unauthorized')
+            self.assertEqual(response.status_code, 401)
+
+
 
 user_reg_correct = {
     'username': 'testname',

@@ -1,8 +1,9 @@
 from flask_restful import Resource, Api
-from flask import Blueprint, request, render_template
+from flask import Blueprint, request, render_template, jsonify
 from project import db
 from project.api.models import User
-
+from project.api.utils import authenticate_restful
+from project.api.utils import is_admin
 from sqlalchemy import exc
 
 
@@ -28,13 +29,18 @@ class UsersPing(Resource):
         }
 
 class UsersList(Resource):
+    # black magic decorator
+    method_decorators = {'post': [authenticate_restful]}
     #  Add new user
-    def post(self):
+    def post(self, sub):
         post_data = request.get_json()
         response = {
             'status': 'fail',
             'message': 'Invalid payload'
         }
+        if not is_admin(sub):
+            response['message'] = 'Unauthorized'
+            return response, 401
         #  empty request
         if not post_data:
             response['message'] = 'Empty payload'
@@ -60,18 +66,6 @@ class UsersList(Resource):
         except (exc.IntegrityError, ValueError):
             db.session.rollback() #  must rollback any changes
             return response, 400
-        username = post_data.get('username')
-        email = post_data.get('email')
-        #  add to db
-        db.session.add(User(username=username, email=email))
-        #  commit transaction to db
-        db.session.commit()
-        #  set response object (placeholder)
-        response = {
-            "status": "success",
-            "message": f"{email} added" 
-        }
-        return response, 201
 
     def get(self):
         """ Get all users """
