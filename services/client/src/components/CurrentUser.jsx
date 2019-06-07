@@ -54,7 +54,9 @@ class CurrentUser extends Component {
                 <ul>
                     <li><strong>User ID:</strong> {this.state.id}</li>
                     <li><strong>Username:</strong> {this.state.username}</li>
-                    <li><strong>Email:</strong> {this.state.email}</li>  
+                    <li><strong>Email:</strong> {this.state.email}</li>
+                    <li><strong>Active:</strong> {this.state.active}</li>
+                    <li><strong>Admin:</strong> {this.state.admin} </li>
                 </ul>              
             </div>
         )

@@ -42,6 +42,12 @@ class App extends Component {
     componentDidMount() {
         this.getUsers();
     };
+    //https://reactjs.org/blog/2018/03/27/update-on-async-rendering.html
+    componentWillMount() {
+      if (window.localStorage.getItem('token')) {
+        this.setState({ isAuthenticated: true });
+      };
+    };
 
     handleChange(event) {
         const obj = {};
