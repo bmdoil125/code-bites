@@ -40,8 +40,8 @@ class TestLoginRoute(BaseTestCase):
             self.assertIn('Empty payload', data['message'])
             self.assertIn('fail', data['status'])
 
-    """
-    def test_user_reg_html_content(self):
+
+    def test_user_reg_wrong_content_type(self):
         
         with self.client:
             response = self.client.post(
@@ -50,10 +50,10 @@ class TestLoginRoute(BaseTestCase):
                 content_type = 'text/html'
             )
             data = json.loads(response.data.decode())
-            self.assertEqual(response.status_code, 400)
-            self.assertIn('Invalid header: Content-Type', data['message'])
+            self.assertEqual(response.status_code, 406)
+            self.assertIn('This endpoint only accepts json', data['message'])
             self.assertIn('fail', data['status'])
-    """
+
     def test_user_reg_invalid_username(self):
         """ Test user registration with no username """
         with self.client:

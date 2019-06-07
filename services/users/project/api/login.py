@@ -10,14 +10,15 @@ login_blueprint = Blueprint('login', __name__)
 
 @login_blueprint.before_request
 def only_json():
-    if not request.is_json:
-        response = make_response(json.dumps({
-            'status': 'fail',
-            'message': 'This endpoint only accepts json'
-        }))
-        response.headers.set('Content-Type', 'application/json')
-        response.status_code = 406
-        return response
+    if not request.is_json and request.method != 'GET' and request.method != 'DELETE':
+        if not request.is_json:
+            response = make_response(json.dumps({
+                'status': 'fail',
+                'message': 'This endpoint only accepts json'
+            }))
+            response.headers.set('Content-Type', 'application/json')
+            response.status_code = 406
+            return response
 
 @login_blueprint.route('/login/login', methods=['POST'])
 def login_user():
@@ -25,12 +26,6 @@ def login_user():
     'status': 'fail',
     'message': 'Invalid payload'
     }
-
-    """ Test for application/json header
-    if not request.headers.get('Content-Type') == 'application/json':
-        response['message'] = 'Invalid header: Content-Type'
-        return jsonify(response), 400
-    """
     post_data = request.get_json()
 
     # empty request
@@ -87,11 +82,6 @@ def register_user():
     'message': 'Invalid payload'
     }
 
-    """ Test for application/json header
-    if not request.headers.get('Content-Type') == 'application/json':
-        response['message'] = 'Invalid header: Content-Type'
-        return jsonify(response), 400
-    """
     post_data = request.get_json()
 
     # empty request

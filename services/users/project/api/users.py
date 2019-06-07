@@ -12,7 +12,7 @@ api = Api(users_blueprint)
 
 @users_blueprint.before_request
 def only_json():
-    if not request.is_json:
+    if not request.is_json and request.method != 'GET' and request.method != 'DELETE':
         response = make_response(json.dumps({
             'status': 'fail',
             'message': 'This endpoint only accepts json'
