@@ -25,6 +25,7 @@ const NavBar = (props) => (
                     {props.isAuthenticated &&
                         <Link to="/me" className="navbar-item">Profile</Link>
                     }
+                    <a href="/swagger" className="navbar-item">API</a>
                 </div>            
                 <div className="navbar-end">
                     {!props.isAuthenticated &&

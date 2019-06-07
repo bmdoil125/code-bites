@@ -7,6 +7,10 @@ import NavBar from './components/NavBar';
 import Form from './components/forms/Form';
 import Signout from './components/Signout';
 import CurrentUser from './components/CurrentUser';
+import Footer from './components/Footer'
+import Exercises from './components/Exercises';
+
+
 
 /* 
 Class based component. Runs when instance is created.
@@ -133,8 +137,13 @@ class App extends Component {
                 <br />
                 <Switch>
                   <Route exact path='/' render={() => (
-                  <UsersList users={this.state.users}/>
+                  <Exercises isAuthenticated={this.state.isAuthenticated}/>
                   )} />
+                  <Route exact path='/all-users' render={() => (
+                    <UsersList
+                      users={this.state.users}
+                  />
+                  )}/>
                   <Route exact path='/about' component={About} />
                   <Route exact path='/register' render={() => (
                       <Form
@@ -165,6 +174,7 @@ class App extends Component {
             </div>
           </div>
         </section>
+        <Footer/>
       </div>
     )
   };

@@ -69,20 +69,36 @@ class Form extends Component {
     };
 
     validateForm() {
+        // define self as this
         const self = this;
         // get form data
         const formData = this.state.formData;
-        //reset rules
+        // reset all rules
         self.resetRules()
-        //validate register
+        // validate register form
         if (self.props.formType === 'Register') {
-            const formRules = self.state.registerFormRules;
-            if (formData.password.length > 10) formRules[3].valid = true;
-            self.setState({registerFormRules: formRules})
-            if (self.allTrue()) self.setState({valid: true})
+          const formRules = self.state.registerFormRules;
+          if (formData.username.length > 5) formRules[0].valid = true;
+          if (this.validateEmail(formData.email)) formRules[1].valid = true;
+          if (formData.password.length > 5) formRules[2].valid = true;
+          self.setState({registerFormRules: formRules})
+          if (self.allTrue()) self.setState({valid: true});
         }
-    };
+        // validate login form
+        if (self.props.formType === 'Login') {
+          const formRules = self.state.loginFormRules;
+          if (formData.email.length > 0) formRules[0].valid = true;
+          if (formData.password.length > 0) formRules[1].valid = true;
+          self.setState({loginFormRules: formRules})
+          if (self.allTrue()) self.setState({valid: true});
+        }
+      };
 
+    validateEmail(email) {
+        // eslint-disable-next-line
+        var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(email);
+      };
 
     allTrue() {
         let formRules = loginFormRules;
