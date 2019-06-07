@@ -1,15 +1,25 @@
 from flask_restful import Resource, Api
-from flask import Blueprint, request, render_template, jsonify, current_app
+from flask import Blueprint, request, render_template, jsonify, current_app, make_response
 from project import db
 from project.api.models import User
 from project.api.utils import authenticate_restful
 from project.api.utils import is_admin, is_same_user
 from sqlalchemy import exc
-
+import json
 
 users_blueprint = Blueprint('users', __name__, template_folder='./templates')
 api = Api(users_blueprint)
 
+@users_blueprint.before_request
+def only_json():
+    if not request.is_json:
+        response = make_response(json.dumps({
+            'status': 'fail',
+            'message': 'This endpoint only accepts json'
+        }))
+        response.headers['Content-Type'] = 'application/json'
+        response.status_code = 406
+        return response
 
 @users_blueprint.route('/', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def index():
@@ -24,9 +34,11 @@ def index():
 
 class UsersPing(Resource):
     def get(self):
-        return {"status": "success",
-        "message": "pong"
+        response = {
+            "status": "success",
+            "message": "pong"
         }
+        return response, 200
 
 class UsersList(Resource):
     # black magic decorator

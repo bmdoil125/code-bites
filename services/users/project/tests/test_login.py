@@ -157,6 +157,7 @@ class TestLoginRoute(BaseTestCase):
 
             response = self.client.get(
                 '/login/signout',
+                content_type='application/json',
                 headers={'Authorization': f'Bearer {token}'}
             )
             data = json.loads(response.data.decode())
@@ -264,6 +265,7 @@ class TestLoginRoute(BaseTestCase):
             token = json.loads(login_response.data.decode())['token']
             response = self.client.get(
                 '/login/signout',
+                content_type='application/json',
                 headers={'Authorization': f'Bearer {token}'}
             )
             data = json.loads(response.data.decode())
@@ -271,7 +273,7 @@ class TestLoginRoute(BaseTestCase):
             self.assertTrue(data['message'] == 'Unauthorized')
             self.assertEqual(response.status_code, 401)
             
-    def test_user_currentstatus_inactive(self):
+    def test_user_me_inactive(self):
         """ Test GET /login/me endpoint inactive user """
         add_user('testname', 'test@ing.com', 'testpass')
         # update user to inactive
@@ -290,6 +292,7 @@ class TestLoginRoute(BaseTestCase):
             token = json.loads(login_response.data.decode())['token']
             response = self.client.get(
                 '/login/me',
+                content_type='application/json',
                 headers={'Authorization': f'Bearer {token}'}
             )
             data = json.loads(response.data.decode())

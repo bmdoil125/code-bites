@@ -14,7 +14,10 @@ class TestUserService(BaseTestCase):
 
     def test_user(self):
         """Ensure the /ping route behaves correctly."""
-        response = self.client.get('/users/ping')
+        response = self.client.get(
+            '/users/ping',
+            content_type='application/json'
+            )
         data = json.loads(response.data.decode())
         self.assertEqual(response.status_code, 200)
         self.assertIn('pong', data['message'])
@@ -199,7 +202,10 @@ class TestUserService(BaseTestCase):
         """ Throw error if get single user fails """
         user = add_user('testuser', 'test@testing.io', 'testpass')
         with self.client:
-            response = self.client.get(f'/users/{user.id}')
+            response = self.client.get(
+                f'/users/{user.id}',
+                content_type='application/json'
+                )
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
             self.assertIn('testuser', data['data']['username'])
@@ -208,7 +214,10 @@ class TestUserService(BaseTestCase):
     def test_get_user_no_id(self):
         """ Error if id not provided """
         with self.client:
-            response = self.client.get('/users/fail')
+            response = self.client.get(
+                '/users/fail',
+                content_type='application/json'
+                )
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 404)
             self.assertIn('User does not exist', data['message'])
@@ -217,7 +226,10 @@ class TestUserService(BaseTestCase):
     def test_get_user_incorrect_id(self):
         """ Error if incorrect id provided """
         with self.client:
-            response = self.client.get('/users/1337')
+            response = self.client.get(
+                '/users/1337',
+                content_type='application/json'
+                )
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 404)
             self.assertIn('User does not exist', data['message'])
@@ -256,7 +268,10 @@ class TestUserService(BaseTestCase):
 
     def test_index_no_users(self):
         """ Test main route when no users in database: Status 200 """
-        response = self.client.get('/')
+        response = self.client.get(
+            '/',
+            content_type='application/json'
+            )
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'All Users', response.data)
         self.assertIn(b'<p>No users!</p>', response.data)
@@ -266,24 +281,14 @@ class TestUserService(BaseTestCase):
         add_user('brent','brent@doil.com', 'testpass')
         add_user('test', 'testing@test.com', 'testpass')
         with self.client:
-            response = self.client.get('/')
+            response = self.client.get(
+                '/',
+                content_type='application/json'
+                )
             self.assertEqual(response.status_code, 200)
             self.assertIn(b'All Users', response.data)
             self.assertNotIn(b'<p>No users!</p>', response.data)
             self.assertIn(b'brent', response.data)
-            self.assertIn(b'test', response.data)
-
-    def test_index_add_user(self):
-        """ New user can be added via form POST """
-        with self.client:
-            response = self.client.post(
-                '/',
-                data=dict(username='test', email='testing@gmail.com', password='testpass'),
-                follow_redirects=True
-            )
-            self.assertEqual(response.status_code, 200)
-            self.assertIn(b'All Users', response.data)
-            self.assertNotIn(b'<p>No users!</p>', response.data)
             self.assertIn(b'test', response.data)
     
     def test_add_user_with_inactive_user(self):

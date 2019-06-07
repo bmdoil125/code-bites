@@ -1,5 +1,6 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, make_response
 from sqlalchemy import exc, or_
+import json
 
 from project.api.models import User
 from project import db, bcrypt
@@ -7,6 +8,16 @@ from project.api.utils import authenticate
 
 login_blueprint = Blueprint('login', __name__)
 
+@login_blueprint.before_request
+def only_json():
+    if not request.is_json:
+        response = make_response(json.dumps({
+            'status': 'fail',
+            'message': 'This endpoint only accepts json'
+        }))
+        response.headers.set('Content-Type', 'application/json')
+        response.status_code = 406
+        return response
 
 @login_blueprint.route('/login/login', methods=['POST'])
 def login_user():
