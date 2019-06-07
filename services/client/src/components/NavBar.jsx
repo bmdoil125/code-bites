@@ -31,7 +31,7 @@ const NavBar = (props) => (
                     {!props.isAuthenticated &&
                         <Link to="/login" className="navbar-item">Login</Link>
                     }
-                    {!props.isAuthenticated &&
+                    {props.isAuthenticated &&
                         <Link to="/signout" className="navbar-item">Signout</Link>
                     }                    
                 </div>
