@@ -12,6 +12,7 @@ class BaseConfig:
     BCRYPT_LOG_ROUNDS = 12
     TOKEN_EXPIRATION_DAYS = 5
     TOKEN_EXPIRATION_SECONDS = 0
+    PAGINATION_NUMBER = 5
 
 class DevConfig(BaseConfig):
     """Development Configuration"""

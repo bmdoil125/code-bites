@@ -1,5 +1,5 @@
 from flask_restful import Resource, Api
-from flask import Blueprint, request, render_template, jsonify
+from flask import Blueprint, request, render_template, jsonify, current_app
 from project import db
 from project.api.models import User
 from project.api.utils import authenticate_restful
@@ -30,7 +30,7 @@ class UsersPing(Resource):
 
 class UsersList(Resource):
     # black magic decorator
-    method_decorators = {'post' : [authenticate_restful]}
+    method_decorators = {'post' : [authenticate_restful], 'get': [authenticate_restful]}
     #  Add new user
     def post(self, sub):
         post_data = request.get_json()
@@ -39,8 +39,8 @@ class UsersList(Resource):
             'message': 'Invalid payload'
         }
         if not is_admin(sub):
-            response['message'] = 'Unauthorized'
-            return response, 401
+            response['message'] = 'Forbidden'
+            return response, 403
         #  empty request
         if not post_data:
             response['message'] = 'Empty payload'
@@ -67,7 +67,7 @@ class UsersList(Resource):
             db.session.rollback() #  must rollback any changes
             return response, 400
 
-    def get(self):
+    def get(self, sub):
         """ Get all users """
         response = {
             'data': {
@@ -78,7 +78,7 @@ class UsersList(Resource):
         return response, 200
 
 class Users(Resource):
-    method_decorators = {'put' : [authenticate_restful]}
+    method_decorators = {'put' : [authenticate_restful], 'delete': [authenticate_restful]}
 
     def get(self, user_id):
         """ Get user by user_id """
@@ -100,6 +100,7 @@ class Users(Resource):
             return response, 404
 
     def put(self, sub, user_id):
+        """ Update user_id, must be admin or the correct user """
         put_data = request.get_json()
         response = {
             'status': 'fail',
@@ -124,6 +125,36 @@ class Users(Resource):
                     "data": updated_user.to_json()
                 }
                 return put_response, 201
+        except ValueError:
+            return response, 404
+
+    def delete(self, sub, user_id):
+        """ Update user_id, must be admin or the correct user """
+        response = {
+            'status': 'fail',
+            'message': 'User does not exist'
+        }
+        # If user sending request is not admin and not the user deleting their own profile return 403
+        if not is_admin(sub) and not is_same_user(sub, user_id):
+                return response, 403
+        try:
+            user = User.query.filter_by(id=int(user_id)).first()
+            if not user:
+                return response, 404
+            else:
+                db.session.query(User).filter(User.id==user_id).delete()
+                db.session.commit()
+                # get updated object
+                deleted_user = User.query.filter_by(id=int(user_id)).first()
+                if not deleted_user:
+                    delete_response = {
+                        "status": "success",
+                        "message": "Deleted"
+                    }
+                    return delete_response, 204
+                else:
+                    response['message'] = 'Server error'
+                    return response, 500
         except ValueError:
             return response, 404
 

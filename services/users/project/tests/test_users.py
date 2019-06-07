@@ -228,11 +228,22 @@ class TestUserService(BaseTestCase):
         # Add test users
         add_user('testuser1', 'testing123@gmail.com', 'testpass')
         add_user('testuser2', 'testingagain@gmail.com', 'testpass')
+        add_admin_user('admin', 'admin@admin.com', 'testpass')
         with self.client:
-            response = self.client.get('/users')
+            login_response = self.client.post(
+                '/login/login',
+                data=json.dumps({'email': 'admin@admin.com', 'password': 'testpass'}),
+                content_type='application/json'
+            )
+            token = json.loads(login_response.data.decode())['token']
+            response = self.client.get(
+                '/users',
+                content_type='application/json',
+                headers={'Authorization': f'Bearer {token}'}
+                )
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(len(data['data']['users']), 2)
+            self.assertEqual(len(data['data']['users']), 3)
             self.assertIn('success', data['status'])
             self.assertIn('testuser1', data['data']['users'][0]['username'])
             self.assertIn('testing123@gmail.com', data['data']['users'][0]['email'])
@@ -330,8 +341,8 @@ class TestUserService(BaseTestCase):
             data = json.loads(response.data.decode())
             print(data)
             self.assertTrue(data['status'] == 'fail')
-            self.assertTrue(data['message'] == 'Unauthorized')
-            self.assertEqual(response.status_code, 401)
+            self.assertTrue(data['message'] == 'Forbidden')
+            self.assertEqual(response.status_code, 403)
 
     def test_update_user_admin(self):
         user = add_user('testname', 'test@ing.com', 'testpass')
@@ -430,6 +441,108 @@ class TestUserService(BaseTestCase):
             self.assertEqual(put_response.status_code, 403)
             self.assertIn('fail', put_data['status'])
             self.assertIn('You do not have permission to update this user', put_data['message'])
+
+    def test_delete_user_admin(self):
+        user = add_user('testname', 'test@ing.com', 'testpass')
+        # add admin user and log in
+        add_admin_user('admin', 'admin@admin.com', 'testpass')
+        with self.client:
+            login_response = self.client.post(
+                '/login/login',
+                data=json.dumps({'email': 'admin@admin.com', 'password': 'testpass'}),
+                content_type='application/json'
+            )
+            token = json.loads(login_response.data.decode())['token']
+            get_response = self.client.get(
+                f'/users/{user.id}',
+                content_type='application/json',
+                headers={'Authorization': f'Bearer {token}'}
+                )
+            data = json.loads(get_response.data.decode())
+            print(data)
+            self.assertEqual(get_response.status_code, 200)
+            self.assertIn('testname', data['data']['username'])
+            self.assertIn('test@ing.com', data['data']['email'])
+
+            delete_response = self.client.delete(
+                f'/users/{user.id}',
+                content_type='application/json',
+                headers={'Authorization': f'Bearer {token}'}
+            )
+            self.assertEqual(delete_response.status_code, 204)
+
+    def test_delete_user_self(self):
+        user = add_user('testname', 'test@ing.com', 'testpass')
+        with self.client:
+            login_response = self.client.post(
+                '/login/login',
+                data=json.dumps({'email': 'test@ing.com', 'password': 'testpass'}),
+                content_type='application/json'
+            )
+            token = json.loads(login_response.data.decode())['token']
+            get_response = self.client.get(
+                f'/users/{user.id}',
+                content_type='application/json',
+                headers={'Authorization': f'Bearer {token}'}
+                )
+            data = json.loads(get_response.data.decode())
+            print(data)
+            self.assertEqual(get_response.status_code, 200)
+            self.assertIn('testname', data['data']['username'])
+            self.assertIn('test@ing.com', data['data']['email'])
+
+            delete_response = self.client.delete(
+                f'/users/{user.id}',
+                content_type='application/json',
+                headers={'Authorization': f'Bearer {token}'}
+            )
+            self.assertEqual(delete_response.status_code, 204)
+            
+
+    def test_delete_user_unauthorized(self):
+        add_user('testname', 'test@ing.com', 'testpass')
+        with self.client:
+            login_response = self.client.post(
+                '/login/login',
+                data=json.dumps({'email': 'test@ing.com', 'password': 'testpass'}),
+                content_type='application/json'
+            )
+            token = json.loads(login_response.data.decode())['token']
+            user_to_delete = add_user('deleteme', 'del@ete.com', 'testpass')
+            get_response = self.client.get(
+                f'/users/{user_to_delete.id}',
+                content_type='application/json',
+                headers={'Authorization': f'Bearer {token}'}
+                )
+            data = json.loads(get_response.data.decode())
+            self.assertEqual(get_response.status_code, 200)
+            self.assertIn('deleteme', data['data']['username'])
+            self.assertIn('del@ete.com', data['data']['email'])
+
+            delete_response = self.client.delete(
+                f'/users/{user_to_delete.id}',
+                content_type='application/json'
+            )
+            delete_data = json.loads(delete_response.data.decode())
+            print(delete_data)
+            self.assertEqual(delete_response.status_code, 403)
+            self.assertIn('fail', delete_data['status'])
+            self.assertIn('Forbidden', delete_data['message'])
+
+
+    def test_delete_all_users(self):
+        """ Ensure DELETE /users returns 405 """
+        with self.client:
+            response = self.client.delete('/users')
+            self.assertEqual(response.status_code, 405)
+
+    def test_update_all_users(self):
+        """ Ensure PUT /users returns 405 """
+        with self.client:
+            response = self.client.put('/users')
+            self.assertEqual(response.status_code, 405)
+
+
 
 
 
