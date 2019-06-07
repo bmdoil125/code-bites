@@ -36,7 +36,7 @@ class CurrentUser extends Component {
                 email: res.data.data.email,
                 id: res.data.data.id,
                 username: res.data.data.username,
-                active: String(red.data.data.active),
+                active: String(res.data.data.active),
                 admin: String(res.data.data.admin),
             }) 
         })
