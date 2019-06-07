@@ -71,13 +71,6 @@ exports[`Navbar snapshot renders 1`] = `
         >
           Login
         </a>
-        <a
-          className="navbar-item"
-          href="/signout"
-          onClick={[Function]}
-        >
-          Signout
-        </a>
       </div>
     </div>
   </section>
