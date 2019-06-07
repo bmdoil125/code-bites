@@ -9,6 +9,23 @@ exports[`Not authenticated Login Form renders snapshot 1`] = `
   </h1>
   <hr />
   <br />
+  <div>
+    <ul
+      className="validation-list"
+    >
+      <li
+        className="error"
+      >
+        Email is required.
+      </li>
+      <li
+        className="error"
+      >
+        Password is required.
+      </li>
+    </ul>
+    <br />
+  </div>
   <form
     onSubmit={[Function]}
   >
@@ -18,7 +35,7 @@ exports[`Not authenticated Login Form renders snapshot 1`] = `
       <input
         className="input is-medium"
         name="email"
-        onChange={[MockFunction]}
+        onChange={[Function]}
         placeholder="Enter an email"
         required={true}
         type="email"
@@ -31,7 +48,7 @@ exports[`Not authenticated Login Form renders snapshot 1`] = `
       <input
         className="input is-medium"
         name="password"
-        onChange={[MockFunction]}
+        onChange={[Function]}
         placeholder="Enter a password"
         required={true}
         type="password"
@@ -40,6 +57,7 @@ exports[`Not authenticated Login Form renders snapshot 1`] = `
     </div>
     <input
       className="button is-primary is-medium is-fullwidth"
+      disabled={true}
       type="submit"
       value="Submit"
     />
@@ -56,6 +74,33 @@ exports[`Not authenticated Register Form renders snapshot 1`] = `
   </h1>
   <hr />
   <br />
+  <div>
+    <ul
+      className="validation-list"
+    >
+      <li
+        className="error"
+      >
+        Username must be greater than 5 characters.
+      </li>
+      <li
+        className="error"
+      >
+        Email must be greater than 5 characters.
+      </li>
+      <li
+        className="error"
+      >
+        Email must be a valid email address.
+      </li>
+      <li
+        className="error"
+      >
+        Password must be greater than 10 characters.
+      </li>
+    </ul>
+    <br />
+  </div>
   <form
     onSubmit={[Function]}
   >
@@ -65,7 +110,7 @@ exports[`Not authenticated Register Form renders snapshot 1`] = `
       <input
         className="input is-medium"
         name="username"
-        onChange={[MockFunction]}
+        onChange={[Function]}
         placeholder="Enter a username"
         required={true}
         type="text"
@@ -78,7 +123,7 @@ exports[`Not authenticated Register Form renders snapshot 1`] = `
       <input
         className="input is-medium"
         name="email"
-        onChange={[MockFunction]}
+        onChange={[Function]}
         placeholder="Enter an email"
         required={true}
         type="email"
@@ -91,7 +136,7 @@ exports[`Not authenticated Register Form renders snapshot 1`] = `
       <input
         className="input is-medium"
         name="password"
-        onChange={[MockFunction]}
+        onChange={[Function]}
         placeholder="Enter a password"
         required={true}
         type="password"
@@ -100,6 +145,7 @@ exports[`Not authenticated Register Form renders snapshot 1`] = `
     </div>
     <input
       className="button is-primary is-medium is-fullwidth"
+      disabled={true}
       type="submit"
       value="Submit"
     />

@@ -2,8 +2,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import renderer from 'react-test-renderer';
 
-import Form from '../Form';
-import { isMainThread } from 'worker_threads';
+import Form from '../forms/Form';
 
 const testData = [
     {
@@ -14,8 +13,7 @@ const testData = [
           email: '',
           password: ''
         },
-        handleUserFormSubmit: jest.fn(),
-        handleFormChange: jest.fn(),
+        loginUser: jest.fn(),
         isAuthenticated: false,
       },
       {
@@ -25,8 +23,7 @@ const testData = [
           email: '',
           password: ''
         },
-        handleUserFormSubmit: jest.fn(),
-        handleFormChange: jest.fn(),
+        loginUser: jest.fn(),
         isAuthenticated: false,
       }   
 ]
@@ -62,22 +59,30 @@ describe('Not authenticated', () => {
   // Test form submission for each form
   it(`${el.formType} Form submits the form`, () => {
     const wrapper = shallow(component);
+    wrapper.instance().handleUserFormSubmit = jest.fn();
+    wrapper.instance().validateForm = jest.fn();
+    wrapper.update();
     // get input of the email field
     const input = wrapper.find('input[type="email"]');
     // confirm that form has not been submitted or changed
-    expect(el.handleUserFormSubmit).toHaveBeenCalledTimes(0);
-    expect(el.handleFormChange).toHaveBeenCalledTimes(0);
+    expect(wrapper.instance().handleUserFormSubmit).toHaveBeenCalledTimes(0);
     // simulate a change in the input field
-    input.simulate('change');
+    input.simulate('change', { target: { name: 'email', value: 'test@ing.com'} });
     //expect handleFormChange to have been called once
-    expect(el.handleFormChange).toHaveBeenCalledTimes(1);
     // simulate a form submission with formData attached
     wrapper.find('form').simulate('submit', el.formData);
     // expect handleUserFormSubmit to have been passed the formData
-    expect(el.handleUserFormSubmit).toHaveBeenCalledWith(el.formData)
+    expect(wrapper.instance().handleUserFormSubmit).toHaveBeenCalledWith(el.formData)
     // expect handleUserFormSubmit to have been called once
-    expect(el.handleUserFormSubmit).toHaveBeenCalledTimes(1);
+    expect(wrapper.instance().handleUserFormSubmit).toHaveBeenCalledTimes(1);
+    expect(wrapper.instance().validateForm).toHaveBeenCalledTimes(1);
   })
+
+  it(`${el.formType} form should be disabled by default`, () => {
+    const wrapper = shallow(component);
+    const input = wrapper.find('input[type="submit"]');
+    expect(input.get(0).props.disabled).toEqual(true);
+  });
 })
 })
 

@@ -9,7 +9,12 @@ describe('Login', () => {
         cy
             .visit('/login')
             .get('h1').contains('Login')
-            .get('form');
+            .get('form')
+            .get('input[disabled')
+            .get('.validation-list')
+            .get('.validation-list > .error').first().contains(
+                'Email is required');
+            
     })
 
     it('user allowed to sign in', () => {
@@ -19,11 +24,11 @@ describe('Login', () => {
             .get('input[name="username"]').type(username)
             .get('input[name="email"]').type(email)
             .get('input[name="password"]').type('test')
-            .get('input[type="submit"]').click()
+            .get('input[type="submit"]').click();
 
         // signout
-        cy.get('.navbar-burger').click()
-        cy.contains('Signout').click()
+        cy.get('.navbar-burger').click();
+        cy.contains('Signout').click();
 
         // log back in
         cy
@@ -31,30 +36,30 @@ describe('Login', () => {
             .get('input[name="email"]').type(email)
             .get('input[name="password"]').type('test')
             .get('input[type="submit"]').click()
-            .wait(100)
+            .wait(100);
         // Expect redirect to "/"
-        cy.contains('All Users')
-        cy.contains(username)
-        cy.get('.navbar-burger').click()
+        cy.contains('All Users');
+        cy.contains(username);
+        cy.get('.navbar-burger').click();
         cy.get('.navbar-menu').within(() => {
             cy
                 .get('.navbar-item').contains('Profile')
                 .get('.navbar-item').contains('Signout')
                 .get('.navbar-item').contains('Login').should('not.be.visible')
-                .get('.navbar-item').contains('Register').should('not.be.visible')
+                .get('.navbar-item').contains('Register').should('not.be.visible');
         });
 
         // signout again
-        cy.get('.navbar-burger').click()
-        cy.get('a').contains('Signout').click()
+        cy.get('.navbar-burger').click();
+        cy.get('a').contains('Signout').click();
 
         // /signout displayed properly
-        cy.get('p').contains('Signed Out')
+        cy.get('p').contains('Signed Out');
         cy.get('navbar-menu').within(() => {
             cy
                 .get('.navbar-item').contains('Signout').should('not.be.visible')
                 .get('.navbar-item').contains('Login')
-                .get('.navbar-item').contains('Register')
-        })
+                .get('.navbar-item').contains('Register');
+        });
     });
 });

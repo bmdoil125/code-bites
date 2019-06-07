@@ -4,7 +4,7 @@ import { Route, Switch } from 'react-router-dom';
 import UsersList from './components/UsersList';
 import About from './components/About';
 import NavBar from './components/NavBar';
-import Form from './components/Form';
+import Form from './components/forms/Form';
 import Signout from './components/Signout';
 import CurrentUser from './components/CurrentUser';
 
@@ -37,6 +37,7 @@ class App extends Component {
         this.handleFormChange = this.handleFormChange.bind(this);
         this.clearFormState = this.clearFormState.bind(this);
         this.signoutUser = this.signoutUser.bind(this);
+        this.loginUser = this.loginUser.bind(this);
     };
     // Avoids race condition, fire after DOM rendered
     componentDidMount() {
@@ -115,6 +116,12 @@ class App extends Component {
       this.setState( { isAuthenticated: false });
     };
 
+    loginUser(token) {
+      window.localStorage.setItem('token', token);
+      this.setState({ isAuthenticated: true });
+      this.getUsers();
+    };
+
   render() {
     return (
       <div>
@@ -132,18 +139,14 @@ class App extends Component {
                   <Route exact path='/register' render={() => (
                       <Form
                         formType={'Register'}
-                        formData={this.state.formData}
-                        handleUserFormSubmit={this.handleUserFormSubmit}
-                        handleFormChange={this.handleFormChange}
+                        loginUser={this.loginUser}
                         isAuthenticated={this.state.isAuthenticated}
                         />
                   )} />
                   <Route exact path='/login' render={() => (
                       <Form 
                       formType={'Login'}
-                      formData={this.state.formData}
-                      handleUserFormSubmit={this.handleUserFormSubmit}
-                      handleFormChange={this.handleFormChange}
+                      loginUser={this.loginUser}
                       isAuthenticated={this.state.isAuthenticated}
                       />
                   )} />
