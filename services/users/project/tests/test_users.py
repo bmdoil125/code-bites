@@ -332,7 +332,106 @@ class TestUserService(BaseTestCase):
             self.assertTrue(data['status'] == 'fail')
             self.assertTrue(data['message'] == 'Unauthorized')
             self.assertEqual(response.status_code, 401)
+
+    def test_update_user_admin(self):
+        user = add_user('testname', 'test@ing.com', 'testpass')
+        # add admin user and log in
+        add_admin_user('admin', 'admin@admin.com', 'testpass')
+        with self.client:
+            login_response = self.client.post(
+                '/login/login',
+                data=json.dumps({'email': 'admin@admin.com', 'password': 'testpass'}),
+                content_type='application/json'
+            )
+            token = json.loads(login_response.data.decode())['token']
+            get_response = self.client.get(
+                f'/users/{user.id}',
+                content_type='application/json',
+                headers={'Authorization': f'Bearer {token}'}
+                )
+            data = json.loads(get_response.data.decode())
+            print(data)
+            self.assertEqual(get_response.status_code, 200)
+            self.assertIn('testname', data['data']['username'])
+            self.assertIn('test@ing.com', data['data']['email'])
+
+            put_response = self.client.put(
+                f'/users/{user.id}',
+                data=json.dumps({'username': 'brent'}),
+                content_type='application/json',
+                headers={'Authorization': f'Bearer {token}'}
+            )
+            put_data = json.loads(put_response.data.decode())
+            print(put_data)
+            self.assertEqual(put_response.status_code, 201)
+            self.assertIn('brent', put_data['data']['username'])
+            self.assertIn('success', put_data['status'])
+
     
+    def test_update_user_self(self):
+        user = add_user('testname', 'test@ing.com', 'testpass')
+        with self.client:
+            login_response = self.client.post(
+                '/login/login',
+                data=json.dumps({'email': 'test@ing.com', 'password': 'testpass'}),
+                content_type='application/json'
+            )
+            token = json.loads(login_response.data.decode())['token']
+            get_response = self.client.get(
+                f'/users/{user.id}',
+                content_type='application/json',
+                headers={'Authorization': f'Bearer {token}'}
+                )
+            data = json.loads(get_response.data.decode())
+            print(data)
+            self.assertEqual(get_response.status_code, 200)
+            self.assertIn('testname', data['data']['username'])
+            self.assertIn('test@ing.com', data['data']['email'])
+
+            put_response = self.client.put(
+                f'/users/{user.id}',
+                data=json.dumps({'username': 'brent'}),
+                content_type='application/json',
+                headers={'Authorization': f'Bearer {token}'}
+            )
+            put_data = json.loads(put_response.data.decode())
+            print(put_data)
+            self.assertEqual(put_response.status_code, 201)
+            self.assertIn('brent', put_data['data']['username'])
+            self.assertIn('success', put_data['status'])
+
+    def test_update_user_unauthorized(self):
+        add_user('testname', 'test@ing.com', 'testpass')
+        with self.client:
+            login_response = self.client.post(
+                '/login/login',
+                data=json.dumps({'email': 'test@ing.com', 'password': 'testpass'}),
+                content_type='application/json'
+            )
+            token = json.loads(login_response.data.decode())['token']
+            user_to_update = add_user('updateme', 'up@date.com', 'testpass')
+            get_response = self.client.get(
+                f'/users/{user_to_update.id}',
+                content_type='application/json',
+                headers={'Authorization': f'Bearer {token}'}
+                )
+            data = json.loads(get_response.data.decode())
+            self.assertEqual(get_response.status_code, 200)
+            self.assertIn('updateme', data['data']['username'])
+            self.assertIn('up@date.com', data['data']['email'])
+
+            put_response = self.client.put(
+                f'/users/{user_to_update.id}',
+                data=json.dumps({'username': 'brent'}),
+                content_type='application/json',
+                headers={'Authorization': f'Bearer {token}'}
+            )
+            put_data = json.loads(put_response.data.decode())
+            self.assertEqual(put_response.status_code, 403)
+            self.assertIn('fail', put_data['status'])
+            self.assertIn('You do not have permission to update this user', put_data['message'])
+
+
 
 if __name__ == '__main__':
     unittest.main()

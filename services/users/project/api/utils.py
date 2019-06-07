@@ -55,3 +55,6 @@ def authenticate_restful(func):
 def is_admin(user_id):
     user = User.query.filter_by(id=user_id).first()
     return user.admin
+
+def is_same_user(uid_1, uid_2):
+    return int(uid_1) == int(uid_2)

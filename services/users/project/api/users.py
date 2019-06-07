@@ -3,7 +3,7 @@ from flask import Blueprint, request, render_template, jsonify
 from project import db
 from project.api.models import User
 from project.api.utils import authenticate_restful
-from project.api.utils import is_admin
+from project.api.utils import is_admin, is_same_user
 from sqlalchemy import exc
 
 
@@ -11,7 +11,7 @@ users_blueprint = Blueprint('users', __name__, template_folder='./templates')
 api = Api(users_blueprint)
 
 
-@users_blueprint.route('/', methods=['GET', 'POST'])
+@users_blueprint.route('/', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def index():
     if request.method == 'POST':
         username = request.form['username']
@@ -30,7 +30,7 @@ class UsersPing(Resource):
 
 class UsersList(Resource):
     # black magic decorator
-    method_decorators = {'post': [authenticate_restful]}
+    method_decorators = {'post' : [authenticate_restful]}
     #  Add new user
     def post(self, sub):
         post_data = request.get_json()
@@ -78,6 +78,8 @@ class UsersList(Resource):
         return response, 200
 
 class Users(Resource):
+    method_decorators = {'put' : [authenticate_restful]}
+
     def get(self, user_id):
         """ Get user by user_id """
         response = {
@@ -91,14 +93,37 @@ class Users(Resource):
             else:
                 response = {
                     "status": "success",
-                    "data": {
-                        "id": user.id,
-                        "username": user.username,
-                        "email": user.email,
-                        "active": user.active
-                    }
+                    "data": user.to_json()
                 }
                 return response, 200
+        except ValueError:
+            return response, 404
+
+    def put(self, sub, user_id):
+        put_data = request.get_json()
+        response = {
+            'status': 'fail',
+            'message': 'User does not exist'
+        }
+        # If user sending request is not admin and not the user updating their own profile
+        if not is_admin(sub) and not is_same_user(sub, user_id):
+                response['message'] = 'You do not have permission to update this user'
+                return response, 403
+        try:
+            user = User.query.filter_by(id=int(user_id)).first()
+            if not user:
+                return response, 404
+            else:
+                for key, value in put_data.items():
+                    setattr(user, key, value)
+                db.session.commit()
+                # get updated object
+                updated_user = User.query.filter_by(id=int(user_id)).first()
+                put_response = {
+                    "status": "success",
+                    "data": updated_user.to_json()
+                }
+                return put_response, 201
         except ValueError:
             return response, 404
 

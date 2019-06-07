@@ -5,17 +5,17 @@
 		"title": "Users Service"
 	},
 	"paths": {
-		"/login/logout": {
+		"/login/signout": {
 			"get": {
 				"security": [{
 					"bearerAuth": []
 				}],
 				"responses": {
 					"200": {
-						"description": "Successfully logged out"
+						"description": "Signs a user out"
 					}
 				},
-				"summary": "Logs a user out"
+				"summary": "Signs a user out"
 			}
 		},
 		"/login/register": {
@@ -46,7 +46,7 @@
 						"description": "Will return 'pong!'"
 					}
 				},
-				"summary": "Just a sanity check"
+				"summary": "Sanity check"
 			}
 		},
 		"/login/login": {
