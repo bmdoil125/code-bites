@@ -47,6 +47,8 @@ def create_app(script_info=None):
     app.register_blueprint(users_blueprint)
     from project.api.login import login_blueprint
     app.register_blueprint(login_blueprint)
+    from project.api.questions import questions_blueprint
+    app.register_blueprint(questions_blueprint)
 
     '''
     shell context for flask cli used to register the app and db to the shell to work with the application context and db

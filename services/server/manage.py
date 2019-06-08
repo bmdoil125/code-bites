@@ -6,7 +6,7 @@ import random
 import string
 from flask.cli import FlaskGroup
 from project import create_app, db
-from project.api.models import User
+from project.api.models import User, Question
 
 # instantiate code coverage tests
 COV = coverage.coverage(
@@ -57,26 +57,58 @@ def test():
         return 0
     sys.exit(result)
 
-@cli.command('add_users')
+@cli.command('add_test_data')
 def add_users():
-    """ Adds test users """
-    db.session.add(User(username='admin', email='admin@admin.com', password='testpass', active=True, admin=True))
-    db.session.add(User(username='testuser2', email='testingagain@gmail.com', password='testpass'))
+    users_num = 100
+    questions_num = 500
+    body_length = 25
+    test_code_length = 25
+    test_solution_length = 20
+    difficulty_levels = ['Easy', 'Moderate', 'Hard']
+
+    """ Add an admin user first """
+    db.session.add(User(username='admin', email='admin@admin.com', password='admin', active=True, admin=True))
+    db.session.commit()
     
-    objects = []
+    users_objects = []
     addr = '@example.com'
-    for _ in range(0,101):
+    for _ in range(0,users_num):
         username = generate_string()
         password = generate_string()
         email = generate_string()
         email += addr
-        objects.append(User(username=username, email=email, password=password))
+        users_objects.append(User(username=username, email=email, password=password))
 
-    db.session.bulk_save_objects(objects)
+    db.session.bulk_save_objects(users_objects)
     db.session.commit()
+
+    questions_objects = []
+    for _ in range(0, questions_num):
+        author_id = generate_id(users_num)
+        body = generate_string(body_length)
+        test_code = generate_string(test_code_length)
+        test_solution = generate_string(test_solution_length)
+        difficulty = random.choice(difficulty_levels)
+        questions_objects.append(
+            Question(
+                author_id=author_id,
+                body=body,
+                test_code=test_code,
+                test_solution=test_solution,
+                difficulty=difficulty
+            )
+        )
+
+    db.session.bulk_save_objects(questions_objects)
+    db.session.commit()
+
+
 
 def generate_string(size=10):
     return ''.join(random.choice(string.ascii_lowercase) for _ in range(size))
+
+def generate_id(max_id):
+    return random.randint(1,max_id)
 
 #Instantiate the cli
 if __name__ == '__main__':

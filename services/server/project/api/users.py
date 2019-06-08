@@ -4,7 +4,7 @@ from project import db
 from project.api.models import User
 from project.api.utils import authenticate_restful
 from project.api.utils import is_admin, is_same_user
-from sqlalchemy import exc
+from sqlalchemy import exc, func
 import json
 
 users_blueprint = Blueprint('users', __name__, template_folder='./templates')
@@ -42,7 +42,7 @@ class UsersPing(Resource):
 
 class UsersList(Resource):
     # black magic decorator
-    method_decorators = {'post' : [authenticate_restful]}
+    method_decorators = {'post' : [authenticate_restful], 'get': [authenticate_restful]}
     #  Add new user
     def post(self, sub):
         post_data = request.get_json()
@@ -79,14 +79,12 @@ class UsersList(Resource):
             db.session.rollback() #  must rollback any changes
             return response, 400
 
-    def get(self):
+    def get(self, sub):
         """ Get all users """
-        response = {
-            'status': 'fail',
-        }
-    
+        num_users = db.session.query(func.count(User.id)).scalar()
         response = {
             'data': {
+                'num_users': num_users,
                 'users': [user.to_json() for user in User.query.all()]
             },
             'status': 'success',
@@ -145,13 +143,14 @@ class Users(Resource):
             return response, 404
 
     def delete(self, sub, user_id):
-        """ Update user_id, must be admin or the correct user """
+        """ Delete user_id, must be admin or the correct user """
         response = {
             'status': 'fail',
             'message': 'User does not exist'
         }
         # If user sending request is not admin and not the user deleting their own profile return 403
         if not is_admin(sub) and not is_same_user(sub, user_id):
+                response['message'] = 'You do not have permission to delete this user'
                 return response, 403
         try:
             user = User.query.filter_by(id=int(user_id)).first()

@@ -14,13 +14,15 @@ class User(db.Model):
     active = db.Column(db.Boolean, default=True, nullable=False)
     created_date = db.Column(db.DateTime, default=func.now(), nullable=False)
     admin = db.Column(db.Boolean, default=False, nullable=False)
+    questions_authored = db.relationship("Question", back_populates="author")
 
-    def __init__(self, username, email, password, active=True, admin=False):
+    def __init__(self, username, email, password, active=True, admin=False, questions_authored=[]):
         self.username = username
         self.email = email
         self.password = bcrypt.generate_password_hash(password, current_app.config.get('BCRYPT_LOG_ROUNDS')).decode(),
         self.active = active
         self.admin = admin
+        self.questions_authored = questions_authored
 
     def to_json(self):
         return {
@@ -62,3 +64,32 @@ class User(db.Model):
             return 'Please log in again.'
         except jwt.InvalidTokenError:
             return 'Unauthorized'
+
+class Question(db.Model):
+    __tablename__ = 'questions'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    author = db.relationship("User", back_populates="questions_authored")
+    body = db.Column(db.String, nullable=False)
+    test_code = db.Column(db.String, nullable=False)
+    test_solution = db.Column(db.String, nullable=False)
+    difficulty = db.Column(db.String, nullable=False)
+
+
+    def __init__(self, author_id, body, test_code, test_solution, difficulty):
+        self.author_id = author_id
+        self.body = body
+        self.test_code = test_code
+        self.test_solution = test_solution
+        self.difficulty = difficulty
+
+    def to_json(self):
+        return {
+            'id': self.id,
+            'author_id': self.author_id,
+            'body': self.body,
+            'test_code': self.test_code,
+            'test_solution': self.test_solution,
+            'difficulty': self.difficulty
+        }

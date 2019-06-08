@@ -2,6 +2,7 @@ from functools import wraps
 from flask import request, jsonify
 from project.api.models import User
 from flask import current_app
+from project import db
 
 # Abstraction for checking for auth token present and valid and user is active
 def authenticate(f):
@@ -59,3 +60,6 @@ def is_admin(user_id):
 
 def is_same_user(uid_1, uid_2):
     return int(uid_1) == int(uid_2)
+
+
+
