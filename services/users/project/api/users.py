@@ -42,7 +42,7 @@ class UsersPing(Resource):
 
 class UsersList(Resource):
     # black magic decorator
-    method_decorators = {'post' : [authenticate_restful], 'get': [authenticate_restful]}
+    method_decorators = {'post' : [authenticate_restful]}
     #  Add new user
     def post(self, sub):
         post_data = request.get_json()
@@ -79,8 +79,12 @@ class UsersList(Resource):
             db.session.rollback() #  must rollback any changes
             return response, 400
 
-    def get(self, sub):
+    def get(self):
         """ Get all users """
+        response = {
+            'status': 'fail',
+        }
+    
         response = {
             'data': {
                 'users': [user.to_json() for user in User.query.all()]
