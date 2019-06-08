@@ -9,7 +9,7 @@ import CurrentUser from './components/CurrentUser';
 import Footer from './components/Footer'
 import Exercises from './components/Exercises';
 import UsersTable from './components/UsersTable';
-
+import Message from './components/Message';
 
 /* 
 Class based component. Runs when instance is created.
@@ -31,6 +31,8 @@ class App extends Component {
                 password: '',
             },
             isAuthenticated: false,
+            messageName: null,
+            messageType: null,
         };
 
         // https://reactjs.org/docs/handling-events.html
@@ -41,6 +43,8 @@ class App extends Component {
         this.clearFormState = this.clearFormState.bind(this);
         this.signoutUser = this.signoutUser.bind(this);
         this.loginUser = this.loginUser.bind(this);
+        this.createMessage = this.createMessage.bind(this);
+        this.removeMessage = this.removeMessage.bind(this);
     };
     // Avoids race condition, fire after DOM rendered
     componentDidMount() {
@@ -79,7 +83,14 @@ class App extends Component {
           this.getUsers();
           
         })
-        .catch((err) => { console.log(err) })
+        .catch((err) => { 
+          if (formType === 'Login') {
+            this.props.createMessage('Login failed.', 'danger')
+          };
+          if (formType === 'Register') {
+            this.props.createMessage('User already exists.', 'danger')
+          }
+         })
         
     };
     // Handler for any form change, i.e. input
@@ -123,6 +134,22 @@ class App extends Component {
       window.localStorage.setItem('token', token);
       this.setState({ isAuthenticated: true });
       this.getUsers();
+      this.createMessage('Welcome!', 'success');
+    };
+    createMessage(name='Test', type='success') {
+      this.setState({
+        messageName: name,
+        messageType: type
+      });
+      setTimeout(() => {
+        this.removeMessage();
+      }, 3000);
+    };
+    removeMessage() {
+      this.setState({
+        messageName: null,
+        messageType: null
+      });
     };
 
   render() {
@@ -131,6 +158,13 @@ class App extends Component {
         <NavBar title={this.state.title} isAuthenticated={this.state.isAuthenticated}/>
         <section className="section">
           <div className="container">
+            {this.state.messageName && this.state.messageType &&
+              <Message
+                messageName={this.state.messageName}
+                messageType={this.state.messageType}
+                removeMessage={this.removeMessage}
+            />
+            }
             <div className="columns">
               <div className="column is-three-quarters">
                 <br />
@@ -146,6 +180,7 @@ class App extends Component {
                         formType={'Register'}
                         loginUser={this.loginUser}
                         isAuthenticated={this.state.isAuthenticated}
+                        createMessage={this.createMessage}
                         />
                   )} />
                   <Route exact path='/login' render={() => (
@@ -153,6 +188,7 @@ class App extends Component {
                       formType={'Login'}
                       loginUser={this.loginUser}
                       isAuthenticated={this.state.isAuthenticated}
+                      createMessage={this.createMessage}
                       />
                   )} />
                   <Route exact path='/signout' render={() => (
