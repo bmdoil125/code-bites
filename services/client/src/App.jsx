@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import { Route, Switch } from 'react-router-dom';
-import UsersList from './components/UsersList';
 import About from './components/About';
 import NavBar from './components/NavBar';
 import Form from './components/forms/Form';
@@ -9,7 +8,7 @@ import Signout from './components/Signout';
 import CurrentUser from './components/CurrentUser';
 import Footer from './components/Footer'
 import Exercises from './components/Exercises';
-
+import UsersTable from './components/UsersTable';
 
 
 /* 
@@ -139,10 +138,7 @@ class App extends Component {
                   <Route exact path='/' render={() => (
                   <Exercises isAuthenticated={this.state.isAuthenticated}/>
                   )} />
-                  <Route exact path='/all-users' render={() => (
-                    <UsersList
-                      users={this.state.users}
-                  />
+
                   )}/>
                   <Route exact path='/about' component={About} />
                   <Route exact path='/register' render={() => (
@@ -167,6 +163,11 @@ class App extends Component {
                   )} />
                   <Route exact path='/me' render={() => (
                     <CurrentUser isAuthenticated={this.state.isAuthenticated}
+                  />
+                  )}/>
+                  <Route exact path='/all-users' render={() => (
+                    <UsersTable
+                      isAuthenticated={this.state.isAuthenticated}
                   />
                   )}/>
                 </Switch>
