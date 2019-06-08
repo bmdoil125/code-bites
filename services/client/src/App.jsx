@@ -1,12 +1,15 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import { Route, Switch } from 'react-router-dom';
-import UsersList from './components/UsersList';
 import About from './components/About';
 import NavBar from './components/NavBar';
 import Form from './components/forms/Form';
 import Signout from './components/Signout';
 import CurrentUser from './components/CurrentUser';
+import Footer from './components/Footer'
+import Exercises from './components/Exercises';
+import UsersTable from './components/UsersTable';
+import Message from './components/Message';
 
 /* 
 Class based component. Runs when instance is created.
@@ -28,6 +31,8 @@ class App extends Component {
                 password: '',
             },
             isAuthenticated: false,
+            messageName: null,
+            messageType: null,
         };
 
         // https://reactjs.org/docs/handling-events.html
@@ -38,6 +43,8 @@ class App extends Component {
         this.clearFormState = this.clearFormState.bind(this);
         this.signoutUser = this.signoutUser.bind(this);
         this.loginUser = this.loginUser.bind(this);
+        this.createMessage = this.createMessage.bind(this);
+        this.removeMessage = this.removeMessage.bind(this);
     };
     // Avoids race condition, fire after DOM rendered
     componentDidMount() {
@@ -66,7 +73,7 @@ class App extends Component {
         if (formType === 'register') {
           data.username = this.state.formData.username
         }
-        const url = `${process.env.REACT_APP_USERS_SERVICE_URL}/login/${formType}`
+        const url = `${process.env.REACT_APP_users_SERVICE_URL}/login/${formType}`
         axios.post(url, data)
         .then((res) => {
           console.log(res.data);
@@ -76,7 +83,14 @@ class App extends Component {
           this.getUsers();
           
         })
-        .catch((err) => { console.log(err) })
+        .catch((err) => { 
+          if (formType === 'Login') {
+            this.props.createMessage('Login failed.', 'danger')
+          };
+          if (formType === 'Register') {
+            this.props.createMessage('User already exists.', 'danger')
+          }
+         })
         
     };
     // Handler for any form change, i.e. input
@@ -104,7 +118,7 @@ class App extends Component {
             password: this.state.password,
         };
         // ajax request to backend
-        axios.post(`${process.env.REACT_APP_USERS_SERVICE_URL}/users`, data)
+        axios.post(`${process.env.REACT_APP_SERVER_SERVICE_URL}/users`, data)
         .then((res) => { 
             this.getUsers(); //update users list
             this.setState( {username: '', email: '', password: '' }) }) //reset form state
@@ -120,6 +134,22 @@ class App extends Component {
       window.localStorage.setItem('token', token);
       this.setState({ isAuthenticated: true });
       this.getUsers();
+      this.createMessage('Welcome!', 'success');
+    };
+    createMessage(name='Test', type='success') {
+      this.setState({
+        messageName: name,
+        messageType: type
+      });
+      setTimeout(() => {
+        this.removeMessage();
+      }, 3000);
+    };
+    removeMessage() {
+      this.setState({
+        messageName: null,
+        messageType: null
+      });
     };
 
   render() {
@@ -128,19 +158,29 @@ class App extends Component {
         <NavBar title={this.state.title} isAuthenticated={this.state.isAuthenticated}/>
         <section className="section">
           <div className="container">
+            {this.state.messageName && this.state.messageType &&
+              <Message
+                messageName={this.state.messageName}
+                messageType={this.state.messageType}
+                removeMessage={this.removeMessage}
+            />
+            }
             <div className="columns">
               <div className="column is-three-quarters">
                 <br />
                 <Switch>
                   <Route exact path='/' render={() => (
-                  <UsersList users={this.state.users}/>
+                  <Exercises isAuthenticated={this.state.isAuthenticated}/>
                   )} />
+
+                  )}/>
                   <Route exact path='/about' component={About} />
                   <Route exact path='/register' render={() => (
                       <Form
                         formType={'Register'}
                         loginUser={this.loginUser}
                         isAuthenticated={this.state.isAuthenticated}
+                        createMessage={this.createMessage}
                         />
                   )} />
                   <Route exact path='/login' render={() => (
@@ -148,6 +188,7 @@ class App extends Component {
                       formType={'Login'}
                       loginUser={this.loginUser}
                       isAuthenticated={this.state.isAuthenticated}
+                      createMessage={this.createMessage}
                       />
                   )} />
                   <Route exact path='/signout' render={() => (
@@ -160,17 +201,23 @@ class App extends Component {
                     <CurrentUser isAuthenticated={this.state.isAuthenticated}
                   />
                   )}/>
+                  <Route exact path='/all-users' render={() => (
+                    <UsersTable
+                      isAuthenticated={this.state.isAuthenticated}
+                  />
+                  )}/>
                 </Switch>
               </div>
             </div>
           </div>
         </section>
+        <Footer/>
       </div>
     )
   };
 
     getUsers() {
-        axios.get(`${process.env.REACT_APP_USERS_SERVICE_URL}/users`)
+        axios.get(`${process.env.REACT_APP_users_SERVICE_URL}/users`)
         .then((res) => { this.setState({ users: res.data.data.users }); })
         .catch((err) => { console.log(err); });
     };

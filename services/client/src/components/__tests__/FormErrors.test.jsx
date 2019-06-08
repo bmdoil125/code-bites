@@ -21,15 +21,13 @@ test('FormErrors (with register form) renders properly', () => {
   const ul = wrapper.find('ul');
   expect(ul.length).toBe(1);
   const li = wrapper.find('li');
-  expect(li.length).toBe(4);
+  expect(li.length).toBe(3);
   expect(li.get(0).props.children).toContain(
     'Username must be greater than 5 characters.');
   expect(li.get(1).props.children).toContain(
-    'Email must be greater than 5 characters.');
-  expect(li.get(2).props.children).toContain(
     'Email must be a valid email address.');
-  expect(li.get(3).props.children).toContain(
-    'Password must be greater than 10 characters.');
+  expect(li.get(2).props.children).toContain(
+    'Password must be greater than 5 characters.');
 });
 
 test('FormErrors (with register form) renders a snapshot properly', () => {

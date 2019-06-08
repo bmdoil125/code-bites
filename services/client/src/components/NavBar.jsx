@@ -23,8 +23,12 @@ const NavBar = (props) => (
                     <Link to="/" className="navbar-item">Home</Link>
                     <Link to="/about" className="navbar-item">About</Link>
                     {props.isAuthenticated &&
+                        <Link to="/all-users" className="navbar-item">All Users</Link>
+                    }
+                    {props.isAuthenticated &&
                         <Link to="/me" className="navbar-item">Profile</Link>
                     }
+                    <a href="/swagger" className="navbar-item">API</a>
                 </div>            
                 <div className="navbar-end">
                     {!props.isAuthenticated &&

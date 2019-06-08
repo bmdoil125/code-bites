@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Exercises renders snapshot 1`] = `
+<div>
+  <h1
+    className="title is-1"
+  >
+    Exercises
+  </h1>
+  <hr />
+  <br />
+  <div
+    className="notification is-warning"
+  >
+    <span>
+      Register or Login to submit a code exercise.
+    </span>
+  </div>
+  <div>
+    <h5
+      className="title is-5"
+    >
+      Define a function called factorial that takes two integers as arguments and returns the factorial of that number.
+    </h5>
+    <br />
+    <br />
+  </div>
+</div>
+`;

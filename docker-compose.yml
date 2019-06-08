@@ -2,26 +2,26 @@ version: '3.7'
 
 services:
 
-  users:
+  server:
     build:
-      context: ./services/users
+      context: ./services/server
       dockerfile: Dockerfile
     volumes:
-      - './services/users:/usr/src/app'
+      - './services/server:/usr/src/app'
     ports:
       - 5001:5000
     environment: 
      - FLASK_ENV=development
      - APP_SETTINGS=project.config.DevConfig
-     - DATABASE_URL=postgres://postgres:postgres@users-db:5432/users_dev 
-     - DATABASE_TEST_URL=postgres://postgres:postgres@users-db:5432/users_test
+     - DATABASE_URL=postgres://postgres:postgres@server-db:5432/server_dev 
+     - DATABASE_TEST_URL=postgres://postgres:postgres@server-db:5432/server_test
      - SECRET_KEY=supersecretkey
     depends_on: 
-      - users-db
+      - server-db
 
-  users-db:
+  server-db:
     build:
-      context: ./services/users/project/db
+      context: ./services/server/project/db
       dockerfile: Dockerfile
     expose:
       - 5432
@@ -37,7 +37,7 @@ services:
     ports:
       - 80:80
     depends_on:
-      - users
+      - server
       - client
 
   client:
@@ -51,19 +51,19 @@ services:
       - 3007:3000
     environment: 
       - NODE_ENV=development
-      - REACT_APP_USERS_SERVICE_URL=${REACT_APP_USERS_SERVICE_URL}
+      - REACT_APP_SERVER_SERVICE_URL=${REACT_APP_SERVER_SERVICE_URL}
     depends_on:
-      - users
+      - server
 
   swagger:
     build:
       context: ./services/swagger
       dockerfile: Dockerfile  
     volumes:
-      - './services/swagger/swagger.json:/usr/share/nginx/html/swagger.json'
+      - './services/swagger/swagger.yaml:/usr/share/nginx/html/swagger.yaml'
     ports:
       - 3008:8080
     environment:
-      - URL=swagger.json
+      - URL=swagger.yaml
     depends_on:
-      - users
+      - server
