@@ -86,17 +86,12 @@ exports[`Not authenticated Register Form renders snapshot 1`] = `
       <li
         className="error"
       >
-        Email must be greater than 5 characters.
-      </li>
-      <li
-        className="error"
-      >
         Email must be a valid email address.
       </li>
       <li
         className="error"
       >
-        Password must be greater than 10 characters.
+        Password must be greater than 5 characters.
       </li>
     </ul>
     <br />

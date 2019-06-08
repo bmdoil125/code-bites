@@ -1,6 +1,7 @@
 from functools import wraps
 from flask import request, jsonify
 from project.api.models import User
+from flask import current_app
 
 # Abstraction for checking for auth token present and valid and user is active
 def authenticate(f):

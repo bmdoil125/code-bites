@@ -9,17 +9,19 @@ exports[`Exercises renders snapshot 1`] = `
   </h1>
   <hr />
   <br />
+  <div
+    className="notification is-warning"
+  >
+    <span>
+      Register or Login to submit a code exercise.
+    </span>
+  </div>
   <div>
     <h5
       className="title is-5"
     >
       Define a function called factorial that takes two integers as arguments and returns the factorial of that number.
     </h5>
-    <button
-      className="button is-primary"
-    >
-      Run
-    </button>
     <br />
     <br />
   </div>

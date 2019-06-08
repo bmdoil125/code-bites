@@ -48,13 +48,6 @@ exports[`Navbar snapshot renders 1`] = `
         </a>
         <a
           className="navbar-item"
-          href="/all-users"
-          onClick={[Function]}
-        >
-          Users
-        </a>
-        <a
-          className="navbar-item"
           href="/swagger"
         >
           API
