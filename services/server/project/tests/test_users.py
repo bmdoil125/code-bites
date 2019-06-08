@@ -266,30 +266,6 @@ class TestUserService(BaseTestCase):
             self.assertTrue(data['data']['users'][1]['active'])
             self.assertFalse(data['data']['users'][1]['admin'])
 
-    def test_index_no_users(self):
-        """ Test main route when no users in database: Status 200 """
-        response = self.client.get(
-            '/',
-            content_type='application/json'
-            )
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b'All Users', response.data)
-        self.assertIn(b'<p>No users!</p>', response.data)
-
-    def test_index_all_users(self):
-        """ Test main route when users exist in database: Status 200 """
-        add_user('brent','brent@doil.com', 'testpass')
-        add_user('test', 'testing@test.com', 'testpass')
-        with self.client:
-            response = self.client.get(
-                '/',
-                content_type='application/json'
-                )
-            self.assertEqual(response.status_code, 200)
-            self.assertIn(b'All Users', response.data)
-            self.assertNotIn(b'<p>No users!</p>', response.data)
-            self.assertIn(b'brent', response.data)
-            self.assertIn(b'test', response.data)
     
     def test_add_user_with_inactive_user(self):
         add_admin_user('testuser', 'test@testing.io', 'testpass')
