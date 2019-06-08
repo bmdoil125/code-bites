@@ -1,21 +1,21 @@
 import os
 import sys
-import json
+import yaml
+import io
 
-
-def update_json_file(url):
-    full_path = os.path.abspath('services/swagger/swagger.json')
-    with open(full_path, 'r') as file:
-        data = json.load(file)
+def update_yaml_file(url):
+    full_path = os.path.abspath('swagger.yaml')
+    with io.open(full_path, 'r') as file:
+        data = yaml.safe_load(file)
     data['servers'][0]['url'] = url
-    with open(full_path, 'w') as file:
-        json.dump(data, file)
+    with io.open(full_path, 'w', encoding='utf8') as file:
+        yaml.dump(data, file, default_flow_style=False, allow_unicode=True)
     return True
 
 
 if __name__ == '__main__':
     try:
-        update_json_file(sys.argv[1])
+        update_yaml_file(sys.argv[1])
     except IndexError:
         print('Please provide a URL.')
         print('USAGE: python update-spec.py URL')

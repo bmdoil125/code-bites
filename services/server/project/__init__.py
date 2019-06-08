@@ -1,4 +1,4 @@
-#  services/users/project/__init__.py
+#  services/server/project/__init__.py
 import os
 from flask import Flask, jsonify
 from flask_restful import Resource, Api
@@ -51,7 +51,7 @@ def create_app(script_info=None):
     '''
     shell context for flask cli used to register the app and db to the shell to work with the application context and db
     without having to import directly to shell
-    Ex: docker-compose exec users flask shell
+    Ex: docker-compose exec server flask shell
     '''
     @app.shell_context_processor
     def ctx():

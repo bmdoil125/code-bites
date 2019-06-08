@@ -13,7 +13,7 @@ before_install:
   - sudo mv docker-compose /usr/local/bin
 
 before_script:
-  - export REACT_APP_USERS_SERVICE_URL=http://127.0.0.1
+  - export REACT_APP_SERVER_SERVICE_URL=http://127.0.0.1
   - npm install
 
 script:

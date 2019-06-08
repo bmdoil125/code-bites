@@ -1,6 +1,6 @@
 __pycache__
 env
-services/users/htmlcov
+services/server/htmlcov
 node_modules
 services/client/node_modules
 .vscode/*

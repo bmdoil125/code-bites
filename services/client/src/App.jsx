@@ -73,7 +73,7 @@ class App extends Component {
         if (formType === 'register') {
           data.username = this.state.formData.username
         }
-        const url = `${process.env.REACT_APP_USERS_SERVICE_URL}/login/${formType}`
+        const url = `${process.env.REACT_APP_users_SERVICE_URL}/login/${formType}`
         axios.post(url, data)
         .then((res) => {
           console.log(res.data);
@@ -118,7 +118,7 @@ class App extends Component {
             password: this.state.password,
         };
         // ajax request to backend
-        axios.post(`${process.env.REACT_APP_USERS_SERVICE_URL}/users`, data)
+        axios.post(`${process.env.REACT_APP_SERVER_SERVICE_URL}/users`, data)
         .then((res) => { 
             this.getUsers(); //update users list
             this.setState( {username: '', email: '', password: '' }) }) //reset form state
@@ -217,7 +217,7 @@ class App extends Component {
   };
 
     getUsers() {
-        axios.get(`${process.env.REACT_APP_USERS_SERVICE_URL}/users`)
+        axios.get(`${process.env.REACT_APP_users_SERVICE_URL}/users`)
         .then((res) => { this.setState({ users: res.data.data.users }); })
         .catch((err) => { console.log(err); });
     };

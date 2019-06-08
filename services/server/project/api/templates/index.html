@@ -37,14 +37,14 @@
         </form>
         <br>
         <hr>
-          {% if users %}
+          {% if server %}
             <ol>
-              {% for user in users %}
+              {% for user in server %}
                 <li>{{user.username}}</li>
               {% endfor %}
             </ol>
           {% else %}
-            <p>No users!</p>
+            <p>No server!</p>
           {% endif %}
         </div>
       </div>

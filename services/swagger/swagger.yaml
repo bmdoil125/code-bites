@@ -1,0 +1,193 @@
+components:
+  schemas:
+    user:
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    user-full:
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        username:
+          type: string
+  securitySchemes:
+    bearerAuth:
+      scheme: bearer
+      type: http
+info:
+  description: Swagger spec for documenting the server service
+  title: Users Service
+  version: 0.0.1
+openapi: 3.0.2
+paths:
+  /login/login:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user'
+        description: User to log in
+        required: true
+      responses:
+        200:
+          description: Logs user in and returns JWT for authentication
+        400:
+          description: Invalid payload
+        404:
+          description: Username or password incorrect
+        406:
+          description: invalid content-type
+        500:
+          description: Server error
+      summary: Logs a user in
+  /login/me:
+    get:
+      responses:
+        '200':
+          description: user object
+        '401':
+          description: Not authenticated. Please log in
+      security:
+      - bearerAuth: []
+      summary: Returns the logged in user's profile
+  /login/register:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user-full'
+        description: User to add
+        required: true
+      responses:
+        201:
+          description: user object
+        400:
+          description: Invalid payload
+        406:
+          description: invalid content-type
+      summary: Creates a new user
+  /login/signout:
+    get:
+      responses:
+        200:
+          description: Signs a user out
+        403:
+          description: User not logged in
+      security:
+      - bearerAuth: []
+      summary: Signs a user out
+  /users:
+    get:
+      responses:
+        200:
+          description: user object
+        403:
+          description: 'Not authorized to view all users: must be admin'
+      security:
+      - bearerAuth: []
+      summary: Returns all users
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user-full'
+        description: User to add
+        required: true
+      responses:
+        201:
+          description: User added
+        400:
+          description: Invalid payload
+        403:
+          description: Not authorized to create a user
+        406:
+          description: invalid content-type
+      security:
+      - bearerAuth: []
+      summary: Adds a new user
+  /users/ping:
+    get:
+      responses:
+        200:
+          description: Will return 'pong!'
+      summary: Sanity check
+  /users/{id}:
+    delete:
+      parameters:
+      - description: ID of user to fetch
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+      responses:
+        204:
+          description: user deleted
+        403:
+          description: Not authorized to delete this user
+        404:
+          description: User does not exist
+        406:
+          description: invalid content-type
+      security:
+      - bearerAuth: []
+      summary: Deletes the user
+    get:
+      parameters:
+      - description: ID of user to fetch
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+      responses:
+        200:
+          description: user object
+        403:
+          description: Not authorized to view this user
+        404:
+          description: User does not exist
+        406:
+          description: invalid content-type
+      security:
+      - bearerAuth: []
+      summary: Returns a user based on a single user ID
+    put:
+      parameters:
+      - description: ID of user to fetch
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int64
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user'
+        description: User to update
+        required: true
+      responses:
+        201:
+          description: user object
+        403:
+          description: Not authorized to update this user
+        404:
+          description: User does not exist
+        406:
+          description: invalid content-type
+      security:
+      - bearerAuth: []
+      summary: Updates the user and returns the updated user object
+servers:
+  - url: http://localhost
