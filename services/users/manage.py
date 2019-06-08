@@ -2,6 +2,8 @@
 import sys
 import unittest
 import coverage
+import random
+import string
 from flask.cli import FlaskGroup
 from project import create_app, db
 from project.api.models import User
@@ -60,8 +62,21 @@ def add_users():
     """ Adds test users """
     db.session.add(User(username='admin', email='admin@admin.com', password='testpass', active=True, admin=True))
     db.session.add(User(username='testuser2', email='testingagain@gmail.com', password='testpass'))
+    
+    objects = []
+    addr = '@example.com'
+    for _ in range(0,101):
+        username = generate_string()
+        password = generate_string()
+        email = generate_string()
+        email += addr
+        objects.append(User(username=username, email=email, password=password))
+
+    db.session.bulk_save_objects(objects)
     db.session.commit()
 
+def generate_string(size=10):
+    return ''.join(random.choice(string.ascii_lowercase) for _ in range(size))
 
 #Instantiate the cli
 if __name__ == '__main__':
