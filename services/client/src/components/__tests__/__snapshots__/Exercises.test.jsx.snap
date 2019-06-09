@@ -13,7 +13,7 @@ exports[`Questions renders snapshot 1`] = `
     className="notification is-warning"
   >
     <span>
-      Register or Login to submit a code exercise.
+      Register or Login to submit a question.
     </span>
   </div>
   <div>

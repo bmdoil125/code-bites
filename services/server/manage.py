@@ -6,7 +6,7 @@ import random
 import string
 from flask.cli import FlaskGroup
 from project import create_app, db
-from project.api.models import User, Question
+from project.api.models import User, Question, Score
 
 # instantiate code coverage tests
 COV = coverage.coverage(
@@ -59,12 +59,18 @@ def test():
 
 @cli.command('add_test_data')
 def add_users():
+    # users
     users_num = 100
+
+    # questions
     questions_num = 500
     body_length = 25
     test_code_length = 25
     test_solution_length = 20
     difficulty_levels = ['Easy', 'Moderate', 'Hard']
+
+    # scores
+    scores_num = 2000
 
     """ Add an admin user first """
     db.session.add(User(username='admin', email='admin@admin.com', password='admin', active=True, admin=True))
@@ -101,6 +107,28 @@ def add_users():
 
     db.session.bulk_save_objects(questions_objects)
     db.session.commit()
+
+    scores_objects = []
+    for _ in range(0, scores_num):
+        user_id = generate_id(users_num)
+        question_id = generate_id(questions_num)
+        correct = bool(random.getrandbits(1))
+        points = random.randint(1, 10)
+        runtime = random.randint(1, 180)
+
+        scores_objects.append(
+            Score(
+                user_id=user_id,
+                question_id=question_id,
+                correct=correct,
+                points=points,
+                runtime=runtime
+            )
+        )
+    
+    db.session.bulk_save_objects(scores_objects)
+    db.session.commit()
+        
 
 
 
