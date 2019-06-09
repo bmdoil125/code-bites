@@ -14,15 +14,21 @@ class User(db.Model):
     active = db.Column(db.Boolean, default=True, nullable=False)
     created_date = db.Column(db.DateTime, default=func.now(), nullable=False)
     admin = db.Column(db.Boolean, default=False, nullable=False)
+
+    # One to many
     questions_authored = db.relationship("Question", back_populates="author")
 
-    def __init__(self, username, email, password, active=True, admin=False, questions_authored=[]):
+    # Many to many
+    questions_answered = db.relationship("Score", back_populates="user")
+
+    def __init__(self, username, email, password, active=True, admin=False, questions_authored=[], questions_answered=[]):
         self.username = username
         self.email = email
         self.password = bcrypt.generate_password_hash(password, current_app.config.get('BCRYPT_LOG_ROUNDS')).decode(),
         self.active = active
         self.admin = admin
         self.questions_authored = questions_authored
+        self.questions_answered = questions_answered
         
 
     def to_json(self):
@@ -32,6 +38,8 @@ class User(db.Model):
             'email': self.email,
             'active': self.active,
             'admin': self.admin,
+            'questions_authored': self.questions_authored,
+            'questions_answered': self.questions_answered
         }
     
     def encode_jwt(self, user_id):
@@ -70,8 +78,14 @@ class Question(db.Model):
     __tablename__ = 'questions'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+    # foreign key
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+
+    #entity relationship
     author = db.relationship("User", back_populates="questions_authored")
+    score = db.relationship("Score", back_populates="question")
+
     body = db.Column(db.String, nullable=False)
     test_code = db.Column(db.String, nullable=False)
     test_solution = db.Column(db.String, nullable=False)
@@ -94,3 +108,42 @@ class Question(db.Model):
             'test_solution': self.test_solution,
             'difficulty': self.difficulty,
         }
+
+class Score(db.Model):
+    __tablename__ = 'scores'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+    # Entity relations
+    # foreign keys
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
+
+    #relationships
+    user = db.relationship("User", back_populates="users")
+    question = db.relationship("Question", back_populates="questions")
+
+    # Additional parameters
+    correct = db.Column(db.Boolean, nullable=False)
+    points = db.Column(db.Integer, nullable=False)
+    runtime = db.Column(db.Integer, nullable=False)
+
+    def __init__(self, id, user_id, question_id, correct=False, points=1, runtime=0):
+        self.id = id
+        self.user_id = user_id
+        self.question_id = question_id
+        self.correct = correct
+        self.points = points
+        self.runtime = runtime
+
+    def to_json(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'question_id': self.question_id,
+            'correct': self.correct,
+            'points': self.date_completed,
+            'runtime': self.runtime
+        }
+
+
