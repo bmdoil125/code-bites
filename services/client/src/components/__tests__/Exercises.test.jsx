@@ -5,24 +5,24 @@ import renderer from 'react-test-renderer';
 import AceEditor from 'react-ace';
 jest.mock('react-ace')
 
-import Exercises from '../Exercises';
+import Questions from '../Questions';
 
 
-test('Exercises renders properly', () => {
-    const wrapper = shallow(<Exercises/>);
+test('Questions renders properly', () => {
+    const wrapper = shallow(<Questions/>);
     const element = wrapper.find('h5');
     expect(element.length).toBe(1)
 });
 
 
-test('Exercises renders snapshot', () => {
-    const tree = renderer.create(<Exercises/>).toJSON();
+test('Questions renders snapshot', () => {
+    const tree = renderer.create(<Questions/>).toJSON();
     expect(tree).toMatchSnapshot();
 });
 
-test('Exercises call componentWillMount', () => {
+test('Questions call componentWillMount', () => {
     const onWillMount = jest.fn();
-    Exercises.prototype.componentWillMount = onWillMount;
-    const wrapper = mount(<Exercises/>);
+    Questions.prototype.componentWillMount = onWillMount;
+    const wrapper = mount(<Questions/>);
     expect(onWillMount).toHaveBeenCalledTimes(1);
 });

@@ -7,6 +7,7 @@ class BaseConfig:
     TESTING = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.getenv('SECRET_KEY')
+    BASE_URL = os.getenv('BASE_URL')
     DEBUG_TOOLBAR = False
     DEBUG_TOOLBAR_INTERCEPT = False
     BCRYPT_LOG_ROUNDS = 12

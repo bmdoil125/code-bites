@@ -1,5 +1,5 @@
 from sqlalchemy import exc, func
-from flask import Blueprint, request
+from flask import Blueprint, request, current_app, url_for
 from flask_restful import Resource, Api
 
 from project import db
@@ -13,7 +13,7 @@ class QuestionList(Resource):
     method_decorators = {'post': [authenticate_restful], 'get': [authenticate_restful]}
 
 
-    def get(self, sub):
+    def get(self, auth_id):
         """ Need to be authenticated, but not admin to see all questions """
         num_questions = db.session.query(func.count(Question.id)).scalar()
         response = {
@@ -27,7 +27,7 @@ class QuestionList(Resource):
         }
         return response, 200
 
-    def post(self, sub):
+    def post(self, auth_id):
         """ Add question """
         post_data = request.get_json()
         response = {
@@ -39,8 +39,8 @@ class QuestionList(Resource):
             response['message'] = 'Empty payload'
             return response, 400
 
-        # author id is this user (sub is the id of the decoded token)
-        author_id = sub
+        # author id is this user (auth_id is the id of the decoded token)
+        author_id = auth_id
         body = post_data.get('body')
         test_code = post_data.get('test_code')
         test_solution = post_data.get('test_solution')
@@ -65,27 +65,33 @@ class QuestionList(Resource):
 class AllQuestionsByAuthenticatedUser(Resource):
     method_decorators = {'get': [authenticate_restful]}
 
-    def get(self, sub):
+    def get(self, auth_id):
         """ Get all questions for logged in user """
-        questions = Question.query.filter_by(author_id=int(sub)).all()
+        questions = [question.to_json() for question in Question.query.filter_by(author_id=int(auth_id)).all()]
+
+        # It works! Creates the full URL!
+        for q in questions:
+            q['self'] = current_app.config.get('BASE_URL') + url_for('questions.questionbyuser', question_id=q['id'], user_id=q['author_id'])
         response = {
             'status': 'success',
             'data': {
-                'questions': [question.to_json() for question in questions]
+                'num_questions': len(questions),
+                'questions': questions
             }
         }
+        print(response)
         return response, 200
 
 class QuestionByUser(Resource):
     method_decorators = {'get': [authenticate_restful], 'put': [authenticate_restful], 'delete': [authenticate_restful]}
 
-    def get(self, sub, user_id, question_id):
+    def get(self, auth_id, user_id, question_id):
         """ Get single question by user id """
         response = {
             'status': 'fail',
             'message': 'Question does not exist'
         }
-        if not is_admin(sub) and not is_same_user(sub, user_id):
+        if not is_admin(auth_id) and not is_same_user(auth_id, user_id):
             response['message'] = 'You do not have permission to view this question'
             return response, 403
         try:
@@ -96,15 +102,17 @@ class QuestionByUser(Resource):
             if not question:
                 return response, 404
             else:
+                q = question.to_json()
+                q['self'] = current_app.config.get('BASE_URL') + url_for('questions.questionbyuser', question_id=question_id, user_id=user_id)
                 response = {
                     'status': 'success',
-                    'data': question.to_json()
+                    'data': q
                 }
                 return response, 200
         except ValueError:
             return response, 404
 
-    def put(self, sub, user_id, question_id):
+    def put(self, auth_id, user_id, question_id):
         """ Update question_id, must be admin or the correct user """
         put_data = request.get_json()
         response = {
@@ -112,7 +120,7 @@ class QuestionByUser(Resource):
             'message': 'Question does not exist'
         }
         # If user sending req is not admin and not updating their own question, fail
-        if not is_admin(sub) and not is_same_user(sub, user_id):
+        if not is_admin(auth_id) and not is_same_user(auth_id, user_id):
             response['message'] = 'You do not have permission to update this question'
             return response, 403
         try:
@@ -130,21 +138,24 @@ class QuestionByUser(Resource):
                     id=int(question_id),
                     author_id=int(user_id)
                 ).first()
+
+                q = updated_question.to_json()
+                q['self'] = current_app.config.get('BASE_URL') + url_for('questions.questionbyuser', question_id=q['id'], user_id=q['author_id'])
                 put_response = {
                     'status': 'success',
-                    'data': updated_question.to_json()
+                    'data': q
                 }
                 return put_response, 201
         except ValueError:
             return response, 404
 
-    def delete(self, sub, user_id, question_id):
+    def delete(self, auth_id, user_id, question_id):
         """ Delete question_id, must be admin or the correct user """
         response = {
             'status': 'fail',
             'message': 'Question does not exist'
         }
-        if not is_admin(sub) and not is_same_user(sub, user_id):
+        if not is_admin(auth_id) and not is_same_user(auth_id, user_id):
             response['message'] = 'You do not have permission to delete this question'
             return response, 403
         try:

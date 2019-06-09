@@ -3,7 +3,7 @@ import AceEditor from 'react-ace';
 import 'brace/mode/python';
 import 'brace/theme/solarized_dark';
 
-class Exercises extends Component {
+class Questions extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -16,7 +16,7 @@ class Exercises extends Component {
         this.submitExercise = this.submitExercise.bind(this);
     };
     componentDidMount() {
-        this.getExercises();
+        this.getQuestions();
     };
     onChange(value) {
         this.setState({
@@ -28,12 +28,12 @@ class Exercises extends Component {
 
     submitExercise(event) {
         event.preventDefault();
-        console.log(this.state.editor.value);
     }
+    
     render() {
         return (
             <div>
-                <h1 className="title is-1">Exercises</h1>
+                <h1 className="title is-1">Questions</h1>
                 <hr/><br/>
                 {!this.props.isAuthenticated && 
                     <div className="notification is-warning">
@@ -73,7 +73,7 @@ class Exercises extends Component {
         )
     };
 
-    getExercises() {
+    getQuestions() {
         const exercises = [
             {
                 id: 0,
@@ -88,4 +88,4 @@ class Exercises extends Component {
     }
 }
 
-export default Exercises;
+export default Questions;

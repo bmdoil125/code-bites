@@ -11,6 +11,7 @@ class UsersTable extends Component {
         super(props);
         this.state = {
             users: [],
+            num_users: 0,
         }
 
     }
@@ -29,7 +30,8 @@ class UsersTable extends Component {
         return axios(options)
         .then((res) => {
             this.setState({
-                users: res.data.data.users
+                users: res.data.data.users,
+                num_users: res.data.data.num_users
             })
         })
         .catch((err) => { console.log(err); });
@@ -39,6 +41,7 @@ class UsersTable extends Component {
         const users = this.state.users;
         return (
             <div>
+                <button className="button is-primary">Number of Current Users: {this.state.num_users}</button>
                 <ReactTable
                 data={users}
                 columns={[

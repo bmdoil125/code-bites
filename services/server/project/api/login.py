@@ -55,8 +55,8 @@ def login_user():
 
 @login_blueprint.route('/login/me', methods=['GET'])
 @authenticate
-def current_user(sub):
-    user = User.query.filter_by(id=sub).first()
+def current_user(auth_id):
+    user = User.query.filter_by(id=auth_id).first()
     response = {
         'status': 'success',
         'message': 'Success',
@@ -68,7 +68,7 @@ def current_user(sub):
 
 @login_blueprint.route('/login/signout', methods=['GET'])
 @authenticate
-def signout_user(sub):
+def signout_user(auth_id):
     response = {
         'status': 'success',
         'message': 'Logged Out'

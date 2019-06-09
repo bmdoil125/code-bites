@@ -1,11 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Exercises renders snapshot 1`] = `
+exports[`Questions renders snapshot 1`] = `
 <div>
   <h1
     className="title is-1"
   >
-    Exercises
+    Questions
   </h1>
   <hr />
   <br />

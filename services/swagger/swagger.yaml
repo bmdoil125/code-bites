@@ -4,57 +4,50 @@ components:
       properties:
         email:
           type: string
+          example: user@user.com
         password:
           type: string
+          example: user
     user-full:
       properties:
         email:
           type: string
+          example: user@user.com
         password:
           type: string
+          example: user
         username:
           type: string
+          example: user
+    admin:
+      properties:
+        email:
+          type: string
+          example: admin@admin.com
+        password:
+          type: string
+          example: admin
+    admin-full:
+      properties:
+        email:
+          type: string
+          example: admin@admin.com
+        password:
+          type: string
+          example: admin
+        username:
+          type: string
+          example: admin
   securitySchemes:
     bearerAuth:
       scheme: bearer
       type: http
 info:
-  description: Swagger spec for documenting the server service
-  title: Users Service
+  description: This is the API documentation for Brent Doil's OSU CS493 Final
+  title: Code-Bites REST API Documentation
   version: 0.0.1
 openapi: 3.0.2
 paths:
-  /login/login:
-    post:
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/user'
-        description: User to log in
-        required: true
-      responses:
-        200:
-          description: Logs user in and returns JWT for authentication
-        400:
-          description: Invalid payload
-        404:
-          description: Username or password incorrect
-        406:
-          description: invalid content-type
-        500:
-          description: Server error
-      summary: Logs a user in
-  /login/me:
-    get:
-      responses:
-        '200':
-          description: user object
-        '401':
-          description: Not authenticated. Please log in
-      security:
-      - bearerAuth: []
-      summary: Returns the logged in user's profile
   /login/register:
     post:
       requestBody:
@@ -71,14 +64,43 @@ paths:
           description: Invalid payload
         406:
           description: invalid content-type
-      summary: Creates a new user
+      summary: Creates a new user. Copy the token in the response. Click the Authorize button at the top and paste the token to authorize your session. 
+  /login/login:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user'
+        description: User to log in
+        required: true
+      responses:
+        200:
+          description: Logs user in and returns JWT for authentication
+        400:
+          description: Invalid payload
+        404:
+          description: Username or password incorrect or User not found
+        406:
+          description: invalid content-type
+        500:
+          description: Server error
+      summary: Logs a user in
+  /login/me:
+    get:
+      responses:
+        200:
+          description: user object
+        401:
+          description: Not authenticated. Please log in
+      security:
+      - bearerAuth: []
+      summary: Returns the logged in user's profile
   /login/signout:
     get:
       responses:
         200:
           description: Signs a user out
-        403:
-          description: User not logged in
       security:
       - bearerAuth: []
       summary: Signs a user out
@@ -88,7 +110,7 @@ paths:
         200:
           description: user object
         403:
-          description: 'Not authorized to view all users: must be admin'
+          description: 'You must be signed in as an admin to view all users'
       security:
       - bearerAuth: []
       summary: Returns all users

@@ -1,7 +1,7 @@
 from sqlalchemy.sql import func
 
 from project import db, bcrypt
-from flask import current_app
+from flask import current_app, url_for
 import jwt
 import datetime
 
@@ -23,6 +23,7 @@ class User(db.Model):
         self.active = active
         self.admin = admin
         self.questions_authored = questions_authored
+        
 
     def to_json(self):
         return {
@@ -30,7 +31,7 @@ class User(db.Model):
             'username': self.username,
             'email': self.email,
             'active': self.active,
-            'admin': self.admin
+            'admin': self.admin,
         }
     
     def encode_jwt(self, user_id):
@@ -43,7 +44,7 @@ class User(db.Model):
                     seconds=current_app.config.get('TOKEN_EXPIRATION_SECONDS'),
                 ),
                 'iat': datetime.datetime.utcnow(),
-                'sub': user_id,
+                'auth_id': user_id,
             }
             return jwt.encode(
                 payload,
@@ -59,7 +60,7 @@ class User(db.Model):
         """ Decode JWT """
         try:
             payload = jwt.decode(token, current_app.config.get('SECRET_KEY'))
-            return payload['sub']
+            return payload['auth_id']
         except jwt.ExpiredSignatureError:
             return 'Please log in again.'
         except jwt.InvalidTokenError:
@@ -91,5 +92,5 @@ class Question(db.Model):
             'body': self.body,
             'test_code': self.test_code,
             'test_solution': self.test_solution,
-            'difficulty': self.difficulty
+            'difficulty': self.difficulty,
         }

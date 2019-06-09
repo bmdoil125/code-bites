@@ -14,18 +14,18 @@ def authenticate(f):
         }
         auth_header = request.headers.get('Authorization')
         if not auth_header:
-            response['message'] = 'Forbidden'
-            return jsonify(response), 403
-        token = auth_header.split(" ")[1]
-        sub = User.decode_jwt(token)
-        if isinstance(sub, str):
-            response['message'] = sub
+            response['message'] = 'Unauthorized'
             return jsonify(response), 401
-        user = User.query.filter_by(id=sub).first()
+        token = auth_header.split(" ")[1]
+        auth_id = User.decode_jwt(token)
+        if isinstance(auth_id, str):
+            response['message'] = auth_id
+            return jsonify(response), 403
+        user = User.query.filter_by(id=auth_id).first()
         
         if not user or not user.active:
             return jsonify(response), 401
-        return f(sub, *args, **kwargs)
+        return f(auth_id, *args, **kwargs)
     return decorated_function
 
 # Note we aren't using the jsonify method on the response
@@ -43,15 +43,15 @@ def authenticate_restful(func):
             response['message'] = 'Forbidden'
             return response, 403
         token = auth_header.split(" ")[1]
-        sub = User.decode_jwt(token)
-        if isinstance(sub, str):
-            response['message'] = sub
+        auth_id = User.decode_jwt(token)
+        if isinstance(auth_id, str):
+            response['message'] = auth_id
             return response, 401
-        user = User.query.filter_by(id=sub).first()
+        user = User.query.filter_by(id=auth_id).first()
         
         if not user or not user.active:
             return response, 401
-        return func(sub, *args, **kwargs)
+        return func(auth_id, *args, **kwargs)
     return decorated_function
 
 def is_admin(user_id):

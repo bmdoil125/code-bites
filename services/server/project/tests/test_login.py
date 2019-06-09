@@ -191,20 +191,21 @@ class TestLoginRoute(BaseTestCase):
             print(data)
             self.assertTrue(data['status'] == 'fail')
             self.assertTrue(data['message'] == 'Please log in again.')
-            self.assertEqual(response.status_code, 401)
+            self.assertEqual(response.status_code, 403)
 
     def test_user_signout_invalid_token(self):
         """ Test signout with invalid JWT """
+        token = 'garbage'
         with self.client:
             response = self.client.get(
                 '/login/signout',
-                headers={'Authorization': 'Bearer fail'},
+                headers={'Authorization': f'Bearer {token}'},
                 content_type='application/json'
             )
             data = json.loads(response.data.decode())
             self.assertTrue(data['status'] == 'fail')
             self.assertTrue(data['message'] == 'Unauthorized')
-            self.assertEqual(response.status_code, 401)
+            self.assertEqual(response.status_code, 403)
 
     def test_user_me(self):
         """ Test logged in user route """
@@ -242,10 +243,9 @@ class TestLoginRoute(BaseTestCase):
                 content_type='application/json'
             )
             data = json.loads(response.data.decode())
-            print(data)
             self.assertTrue(data['status'] == 'fail')
             self.assertTrue(data['message'] == 'Unauthorized')
-            self.assertEqual(response.status_code, 401)
+            self.assertEqual(response.status_code, 403)
 
     def test_user_signout_inactive(self):
         add_user('testname', 'test@ing.com', 'testpass')

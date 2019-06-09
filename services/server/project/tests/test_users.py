@@ -202,9 +202,19 @@ class TestUserService(BaseTestCase):
         """ Throw error if get single user fails """
         user = add_user('testuser', 'test@testing.io', 'testpass')
         with self.client:
+            response_login = self.client.post(
+                '/login/login',
+                data=json.dumps({
+                    'email': 'test@testing.io',
+                    'password': 'testpass'
+                }),
+                content_type='application/json'                
+            )
+            token = json.loads(response_login.data.decode())['token']
             response = self.client.get(
                 f'/users/{user.id}',
-                content_type='application/json'
+                content_type='application/json',
+                headers={'Authorization': f'Bearer {token}'}
                 )
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
@@ -213,10 +223,21 @@ class TestUserService(BaseTestCase):
 
     def test_get_user_no_id(self):
         """ Error if id not provided """
+        add_admin_user('testuser', 'test@testing.io', 'testpass')
         with self.client:
+            response_login = self.client.post(
+                '/login/login',
+                data=json.dumps({
+                    'email': 'test@testing.io',
+                    'password': 'testpass'
+                }),
+                content_type='application/json'                
+            )
+            token = json.loads(response_login.data.decode())['token']
             response = self.client.get(
                 '/users/fail',
-                content_type='application/json'
+                content_type='application/json',
+                headers={'Authorization': f'Bearer {token}'}
                 )
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 404)
@@ -225,10 +246,21 @@ class TestUserService(BaseTestCase):
 
     def test_get_user_incorrect_id(self):
         """ Error if incorrect id provided """
+        add_admin_user('testuser', 'test@testing.io', 'testpass')
         with self.client:
+            response_login = self.client.post(
+                '/login/login',
+                data=json.dumps({
+                    'email': 'test@testing.io',
+                    'password': 'testpass'
+                }),
+                content_type='application/json'                
+            )
+            token = json.loads(response_login.data.decode())['token']
             response = self.client.get(
                 '/users/1337',
-                content_type='application/json'
+                content_type='application/json',
+                headers={'Authorization': f'Bearer {token}'}
                 )
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 404)
@@ -402,15 +434,6 @@ class TestUserService(BaseTestCase):
             )
             token = json.loads(login_response.data.decode())['token']
             user_to_update = add_user('updateme', 'up@date.com', 'testpass')
-            get_response = self.client.get(
-                f'/users/{user_to_update.id}',
-                content_type='application/json',
-                headers={'Authorization': f'Bearer {token}'}
-                )
-            data = json.loads(get_response.data.decode())
-            self.assertEqual(get_response.status_code, 200)
-            self.assertIn('updateme', data['data']['username'])
-            self.assertIn('up@date.com', data['data']['email'])
 
             put_response = self.client.put(
                 f'/users/{user_to_update.id}',
@@ -489,15 +512,6 @@ class TestUserService(BaseTestCase):
             )
             token = json.loads(login_response.data.decode())['token']
             user_to_delete = add_user('deleteme', 'del@ete.com', 'testpass')
-            get_response = self.client.get(
-                f'/users/{user_to_delete.id}',
-                content_type='application/json',
-                headers={'Authorization': f'Bearer {token}'}
-                )
-            data = json.loads(get_response.data.decode())
-            self.assertEqual(get_response.status_code, 200)
-            self.assertIn('deleteme', data['data']['username'])
-            self.assertIn('del@ete.com', data['data']['email'])
 
             delete_response = self.client.delete(
                 f'/users/{user_to_delete.id}',

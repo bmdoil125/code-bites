@@ -7,7 +7,7 @@ import Form from './components/forms/Form';
 import Signout from './components/Signout';
 import CurrentUser from './components/CurrentUser';
 import Footer from './components/Footer'
-import Exercises from './components/Exercises';
+import Questions from './components/Questions';
 import UsersTable from './components/UsersTable';
 import Message from './components/Message';
 
@@ -170,7 +170,7 @@ class App extends Component {
                 <br />
                 <Switch>
                   <Route exact path='/' render={() => (
-                  <Exercises isAuthenticated={this.state.isAuthenticated}/>
+                  <Questions isAuthenticated={this.state.isAuthenticated}/>
                   )} />
 
                   )}/>

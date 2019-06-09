@@ -16,6 +16,7 @@ services:
      - DATABASE_URL=postgres://postgres:postgres@server-db:5432/server_dev 
      - DATABASE_TEST_URL=postgres://postgres:postgres@server-db:5432/server_test
      - SECRET_KEY=supersecretkey
+     - BASE_URL=http://localhost
     depends_on: 
       - server-db
 
