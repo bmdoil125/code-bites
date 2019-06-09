@@ -230,7 +230,17 @@ class TestScores(BaseTestCase):
             )
             data = json.loads(response.data.decode())
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(len(data['data']['scores']), 10)
+            self.assertEqual(len(data['data']['scores']), 5)
+
+            # Pagination test
+            response = self.client.get(
+                '/scores?page=2',
+                content_type='application/json',
+                headers=({'Authorization': f'Bearer {token}'})
+            )
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(data['data']['scores']), 5)
 
 
     def test_get_scores_no_auth_header(self):
@@ -240,7 +250,7 @@ class TestScores(BaseTestCase):
             add_score()
 
         with self.client:
-            response_login = self.client.post(
+            self.client.post(
                 '/login/login',
                 data=json.dumps({
                     'email': 'test@testing.io',
@@ -259,32 +269,261 @@ class TestScores(BaseTestCase):
 
 
     def test_get_user_scores_list_authenticated(self):
-        pass
+        add_user('testuser', 'test@testing.io', 'testpass')
+        add_user('test', 'test', 'test')
+        add_question()
+        for _ in range(0,5):
+            add_score()
+
+        for _ in range(0,5):
+            add_score(user_id=2)
+
+        with self.client:
+            response_login = self.client.post(
+                '/login/login',
+                data=json.dumps({
+                    'email': 'test@testing.io',
+                    'password': 'testpass'
+                }),
+                content_type='application/json'                
+            )
+            token = json.loads(response_login.data.decode())['token']
+            response = self.client.get(
+                '/scores/user',
+                headers={'Authorization': f'Bearer {token}'}
+            )
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(data['data']['scores']), 5)
+            self.assertTrue(data['data']['scores'][0]['self'])
+
 
     def test_get_user_score(self):
         """ Ensure get authenticated user score works """
-        pass
+        user = add_user('testuser', 'test@testing.io', 'testpass')
+        add_question()
+        score = add_score()
+        with self.client:
+            response_login = self.client.post(
+                '/login/login',
+                data=json.dumps({
+                    'email': 'test@testing.io',
+                    'password': 'testpass'
+                }),
+                content_type='application/json'                
+            )
+            token = json.loads(response_login.data.decode())['token']
+
+            response = self.client.get(
+                f'/scores/{score.id}/user/{user.id}',
+                headers={'Authorization': f'Bearer {token}'}
+            )
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(data['data']['user_id'], 1)
+            self.assertEqual(data['data']['question_id'], 1)
+            self.assertFalse(data['data']['correct'])
+            self.assertEqual(data['data']['points'], 5)
+            self.assertEqual(data['data']['runtime'], 10)
 
     def test_get_user_score_noauth(self):
         """ Ensure fails with 401 unauthorized """
-        pass
+        user = add_user('testuser', 'test@testing.io', 'testpass')
+        add_question()
+        score = add_score()
+        with self.client:
+            response = self.client.get(
+                f'/scores/{score.id}/user/{user.id}',
+                headers={'Authorization': f'Bearer fail'}
+            )
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 401)
+            self.assertIn('fail', data['status'])
+            self.assertIn('Unauthorized', data['message'])
+
 
     def test_get_user_score_incorrect_user(self):
         """ Ensure get wrong user score fails with 403 """
-        pass
+        add_user('testuser', 'test@testing.io', 'testpass')
+        add_question()
+        score = add_score()       
+        with self.client:
+            response_login = self.client.post(
+                '/login/login',
+                data=json.dumps({
+                    'email': 'test@testing.io',
+                    'password': 'testpass'
+                }),
+                content_type='application/json'                
+            )
+            token = json.loads(response_login.data.decode())['token']
+
+            response = self.client.get(
+                f'/scores/{score.id}/user/999',
+                headers={'Authorization': f'Bearer {token}'}
+            )
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 403)
+            self.assertIn('fail', data['status'])
+            self.assertIn('You do not have permission to view this score', data['message'])
 
     def test_update_user_score(self):
-        pass
+        user = add_user('testuser', 'test@testing.io', 'testpass')
+        add_question()
+        score = add_score()
+        with self.client:
+            response_login = self.client.post(
+                '/login/login',
+                data=json.dumps({
+                    'email': 'test@testing.io',
+                    'password': 'testpass'
+                }),
+                content_type='application/json'                
+            )
+            token = json.loads(response_login.data.decode())['token']
+            get_response = self.client.get(
+                f'/scores/{score.id}/user/{user.id}',
+                headers={'Authorization': f'Bearer {token}'}
+            )
+            data = json.loads(get_response.data.decode())
+            self.assertEqual(get_response.status_code, 200)
+            self.assertEqual(data['data']['user_id'], 1)
+            self.assertEqual(data['data']['question_id'], 1)
+            self.assertFalse(data['data']['correct'])
+            self.assertEqual(data['data']['points'], 5)
+            self.assertEqual(data['data']['runtime'], 10)       
 
+            put_response = self.client.put(
+                f'/scores/{score.id}/user/{user.id}',
+                data=json.dumps({'correct': False, 'runtime': 15}),
+                content_type='application/json',
+                headers={'Authorization': f'Bearer {token}'}                
+            )
+            put_data = json.loads(put_response.data.decode())
+            self.assertEqual(put_response.status_code, 201)
+            self.assertEqual(put_data['data']['user_id'], 1)
+            self.assertEqual(put_data['data']['question_id'], 1)
+            self.assertFalse(put_data['data']['correct'])
+            self.assertEqual(put_data['data']['points'], 5)
+            self.assertEqual(put_data['data']['runtime'], 15)
 
     def test_update_user_score_unauthorized(self):
-        pass
+        # user_id = 1
+        user = add_user('testuser', 'test@testing.io', 'testpass')
+        # user_id = 2
+        user_2 = add_user('test', 'test', 'test')
+        add_question(1)
+        add_question(2)
+        score = add_score(1)
+        score_2 = add_score(2)
+
+        with self.client:
+            response_login = self.client.post(
+                '/login/login',
+                data=json.dumps({
+                    'email': 'test@testing.io',
+                    'password': 'testpass'
+                }),
+                content_type='application/json'                
+            )       
+            token = json.loads(response_login.data.decode())['token']
+            get_response = self.client.get(
+                f'/scores/{score.id}/user/{user.id}',
+                headers={'Authorization': f'Bearer {token}'}
+            )
+            data = json.loads(get_response.data.decode())
+            self.assertEqual(get_response.status_code, 200)
+            self.assertEqual(data['data']['user_id'], 1)
+            self.assertEqual(data['data']['question_id'], 1)
+            self.assertFalse(data['data']['correct'])
+            self.assertEqual(data['data']['points'], 5)
+            self.assertEqual(data['data']['runtime'], 10)
+
+            put_response = self.client.put(
+                f'/scores/{score_2.id}/user/{user_2.id}',
+                data=json.dumps({'correct': False, 'runtime': 15}),
+                content_type='application/json',
+                headers={'Authorization': f'Bearer {token}'}                
+            )
+            put_data = json.loads(put_response.data.decode())
+            self.assertEqual(put_response.status_code, 403)
+            self.assertIn('fail', put_data['status'])
+            self.assertIn('You do not have permission to update this score', put_data['message'])
 
     def test_delete_user_score(self):
-        pass
+        # user_id = 1
+        user = add_user('testuser', 'test@testing.io', 'testpass')
+        add_question()
+        score = add_score()
+        with self.client:
+            response_login = self.client.post(
+                '/login/login',
+                data=json.dumps({
+                    'email': 'test@testing.io',
+                    'password': 'testpass'
+                }),
+                content_type='application/json'                
+            )
+            token = json.loads(response_login.data.decode())['token']
+            get_response = self.client.get(
+                f'/scores/{score.id}/user/{user.id}',
+                headers={'Authorization': f'Bearer {token}'}
+            )
+            data = json.loads(get_response.data.decode())
+            self.assertEqual(get_response.status_code, 200)
+            self.assertEqual(data['data']['user_id'], 1)
+            self.assertEqual(data['data']['question_id'], 1)
+
+            delete_response = self.client.delete(
+                f'/scores/{score.id}/user/{user.id}',
+                headers={'Authorization': f'Bearer {token}'}
+            )
+            # print(delete_response)
+            self.assertEqual(delete_response.status_code, 204)
 
     def test_delete_user_score_unauthorized(self):
-        pass
+        # user_id = 1
+        user = add_user('testuser', 'test@testing.io', 'testpass')
+        # user_id = 2
+        user_2 = add_user('test', 'test', 'test')
+
+        add_question(1)
+        add_question(2)
+        score = add_score(1)
+        score_2 = add_score(2)
+
+        with self.client:
+            response_login = self.client.post(
+                '/login/login',
+                data=json.dumps({
+                    'email': 'test@testing.io',
+                    'password': 'testpass'
+                }),
+                content_type='application/json'                
+            )       
+            token = json.loads(response_login.data.decode())['token']
+            get_response = self.client.get(
+                f'/scores/{score.id}/user/{user.id}',
+                headers={'Authorization': f'Bearer {token}'}
+            )
+            data = json.loads(get_response.data.decode())
+            self.assertEqual(get_response.status_code, 200)
+            self.assertEqual(data['data']['user_id'], 1)
+            self.assertEqual(data['data']['question_id'], 1)
+            self.assertFalse(data['data']['correct'])
+            self.assertEqual(data['data']['points'], 5)
+            self.assertEqual(data['data']['runtime'], 10)
+
+            delete_response = self.client.delete(
+                f'/scores/{score_2.id}/user/{user_2.id}',
+                data=json.dumps({'correct': False, 'runtime': 15}),
+                content_type='application/json',
+                headers={'Authorization': f'Bearer {token}'}                
+            )
+            delete_data = json.loads(delete_response.data.decode())
+            self.assertEqual(delete_response.status_code, 403)
+            self.assertIn('fail', delete_data['status'])
+            self.assertIn('You do not have permission to delete this score', delete_data['message'])
 
 
     

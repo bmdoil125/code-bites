@@ -88,18 +88,31 @@ class UsersList(Resource):
             }
             return response, 403
 
-        # get users dict
-        users = [user.to_json() for user in User.query.all()]
+        page = request.args.get('page', 1, type=int)
+        # get users
+        users_query = User.query.paginate(page, current_app.config.get('PAGINATION'), False)
+        users_total = users_query.total
+
+        users_objects = [user.to_json() for user in users_query.items]
         # add self link
-        for u in users:
+        for u in users_objects:
             u['self'] = current_app.config.get('BASE_URL') + url_for('users.users', user_id=u['id'])
+        # Next page link
+        next_page = url_for('users.userslist', page=users_query.next_num) if users_query.has_next else None
+
+        # Prev page link
+        prev_page = url_for('users.userslist', page=users_query.prev_num) if users_query.has_prev else None
+
+
 
         response = {
             'data': {
-                'num_users': len(users),
-                'users': users
+                'num_users': users_total,
+                'users': users_objects
             },
             'status': 'success',
+            'next_page': next_page,
+            'prev_page': prev_page
         }
         return response, 200
 

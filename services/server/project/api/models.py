@@ -129,6 +129,7 @@ class Score(db.Model):
             'user_id': self.user_id,
             'question_id': self.question_id,
             'correct': self.correct,
+            'points': self.points,
             'runtime': self.runtime
         }
 

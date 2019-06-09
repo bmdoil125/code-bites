@@ -28,18 +28,32 @@ class QuestionList(Resource):
 
     def get(self, auth_id):
         """ Need to be authenticated, but not admin to see all questions """
+        page = request.args.get('page', 1, type=int)
+        # get users
+        questions_query = Question.query.paginate(page, current_app.config.get('PAGINATION'), False)
+        questions_total = questions_query.total
 
-        questions = [question.to_json() for question in Question.query.all()]
+        questions_objects = [score.to_json() for score in questions_query.items]
+        # add self link
 
-        for q in questions:
+        for q in questions_objects:
             q['self'] = current_app.config.get('BASE_URL') + url_for('questions.questionbyuser', question_id=q['id'], user_id=q['author_id'])
+
+        # Next page link
+        next_page = url_for('questions.questionlist', page=questions_query.next_num) if questions_query.has_next else None
+
+        # Prev page link
+        prev_page = url_for('questions.questionlist', page=questions_query.prev_num) if questions_query.has_prev else None
+        questions = [question.to_json() for question in Question.query.all()]
 
         response = {
             'status': 'success',
             'data': {
-                'num_questions': len(questions),
+                'num_questions': questions_total,
                 'questions': questions
-            }
+            },
+            "next_page": next_page,
+            "prev_page": prev_page
         }
         return response, 200
 
@@ -81,19 +95,32 @@ class AllQuestionsByAuthenticatedUser(Resource):
 
     def get(self, auth_id):
         """ Get all questions for logged in user """
-        questions = [question.to_json() for question in Question.query.filter_by(author_id=int(auth_id)).all()]
+        page = request.args.get('page', 1, type=int)
+        # get users
+        questions_query = Question.query.filter_by(author_id=int(auth_id)).paginate(page, current_app.config.get('PAGINATION'), False)
+        questions_total = questions_query.total
 
-        # It works! Creates the full URL!
-        for q in questions:
+        questions_objects = [question.to_json() for question in questions_query.items]
+        # add self link
+        
+        for q in questions_objects:
             q['self'] = current_app.config.get('BASE_URL') + url_for('questions.questionbyuser', question_id=q['id'], user_id=q['author_id'])
+
+        # Next page link
+        next_page = url_for('questions.questionlist', page=questions_query.next_num) if questions_query.has_next else None
+
+        # Prev page link
+        prev_page = url_for('questions.questionlist', page=questions_query.prev_num) if questions_query.has_prev else None
+
         response = {
             'status': 'success',
             'data': {
-                'num_questions': len(questions),
-                'questions': questions
-            }
+                'num_questions': questions_total,
+                'questions': questions_objects
+            },
+            "next_page": next_page,
+            "prev_page": prev_page
         }
-        # print(response)
         return response, 200
 
 class QuestionByUser(Resource):

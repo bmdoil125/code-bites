@@ -26,19 +26,31 @@ class ScoreList(Resource):
     method_decorators = {'post': [authenticate_restful], 'get': [authenticate_restful]}
     
     def get(self, auth_id):
-        scores = [score.to_json() for score in Score.query.all()]
 
-        for s in scores:
+        page = request.args.get('page', 1, type=int)
+        # get scores
+        scores_query = Score.query.paginate(page, current_app.config.get('PAGINATION'), False)
+        scores_total = scores_query.total
+
+        scores_objects = [score.to_json() for score in scores_query.items]
+        # add self link
+        for s in scores_objects:
             s['self'] = current_app.config.get('BASE_URL') + url_for('scores.scorebyuser', score_id=s['id'], user_id=s['user_id'])
+        # Next page link
+        next_page = url_for('scores.scorelist', page=scores_query.next_num) if scores_query.has_next else None
+
+        # Prev page link
+        prev_page = url_for('scores.scorelist', page=scores_query.prev_num) if scores_query.has_prev else None
 
         response = {
             'status': 'success',
             'data': {
-                'num_scores': len(scores),
-                'scores': scores
-            }
+                'num_scores': scores_total,
+                'scores': scores_objects
+            },
+            "next_page": next_page,
+            "prev_page": prev_page
         }
-        print(response)
         return response, 200
     
     def post(self, auth_id):
@@ -72,11 +84,40 @@ class ScoreList(Resource):
                 'status': 'success',
                 'message': 'Score added'
             }
-            print(response)
             return response, 201
         except (exc.IntegrityError, ValueError):
             db.session.rollback()
             return response, 400
+
+class AllScoresByAuthenticatedUser(Resource):
+     method_decorators = {'get': [authenticate_restful]}
+     def get(self, auth_id):
+
+        page = request.args.get('page', 1, type=int)
+        # get users
+        scores_query = Score.query.filter_by(user_id=int(auth_id)).paginate(page, current_app.config.get('PAGINATION'), False)
+        scores_total = scores_query.total
+
+        scores_objects = [score.to_json() for score in scores_query.items]
+        # add self link
+        for s in scores_objects:
+            s['self'] = current_app.config.get('BASE_URL') + url_for('scores.scorebyuser', score_id=s['id'], user_id=s['user_id'])
+        # Next page link
+        next_page = url_for('users.userslist', page=scores_query.next_num) if scores_query.has_next else None
+
+        # Prev page link
+        prev_page = url_for('users.userslist', page=scores_query.prev_num) if scores_query.has_prev else None
+
+        response = {
+            'status': 'success',
+            'data': {
+                'num_scores': scores_total,
+                'scores': scores_objects
+            },
+            "next_page": next_page,
+            "prev_page": prev_page
+        }
+        return response, 200
 
 class ScoreByUser(Resource):
 
@@ -106,7 +147,6 @@ class ScoreByUser(Resource):
                     'status': 'success',
                     'data': s
                 }
-                print(response)
                 return response, 200
         except ValueError:
             return response, 404
@@ -147,7 +187,6 @@ class ScoreByUser(Resource):
                     'status': 'success',
                     'data': s
                 }
-                print(response)
                 return put_response, 201
         except ValueError:
             return response, 404
@@ -177,7 +216,6 @@ class ScoreByUser(Resource):
                         "status": "success",
                         "message": "deleted"
                     }
-                    print(response)
                     return delete_response, 204
                 else:
                     response["message"] = "Server error"
@@ -186,4 +224,5 @@ class ScoreByUser(Resource):
             return response, 404
 
 api.add_resource(ScoreList, '/scores')
+api.add_resource(AllScoresByAuthenticatedUser, '/scores/user')
 api.add_resource(ScoreByUser, '/scores/<score_id>/user/<user_id>')
