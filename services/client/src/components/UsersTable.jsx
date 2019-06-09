@@ -41,7 +41,7 @@ class UsersTable extends Component {
         const users = this.state.users;
         return (
             <div>
-                <button className="button is-primary">Number of Current Users: {this.state.num_users}</button>
+                <button className="button is-primary">Number of Users: {this.state.num_users}</button>
                 <ReactTable
                 data={users}
                 columns={[
@@ -59,9 +59,8 @@ class UsersTable extends Component {
                         accessor: "email"
                     },
                     {
-                        HEADER: "Profile",
-                        accessor: "self",
-                        Cell: d =><a href={d.self}>Profile</a>
+                        Header: "RESOURCE ENDPOINT",
+                        accessor: "self"
                     }
                 ]}
                 defaultPageSize={5}

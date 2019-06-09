@@ -26,6 +26,12 @@ const NavBar = (props) => (
                         <Link to="/all-users" className="navbar-item">All Users</Link>
                     }
                     {props.isAuthenticated &&
+                        <Link to="/all-questions" className="navbar-item">All Questions</Link>
+                    }
+                    {props.isAuthenticated &&
+                        <Link to="/all-scores" className="navbar-item">All Scores</Link>
+                    }
+                    {props.isAuthenticated &&
                         <Link to="/me" className="navbar-item">Profile</Link>
                     }
                     <a href="/swagger" className="navbar-item">API</a>
@@ -36,6 +42,9 @@ const NavBar = (props) => (
                     }
                     {!props.isAuthenticated &&
                         <Link to="/login" className="navbar-item">Login</Link>
+                    }
+                    {props.isAuthenticated &&
+                        <Link to="/me" className="navbar-item">My Profile</Link>
                     }
                     {props.isAuthenticated &&
                         <Link to="/signout" className="navbar-item">Signout</Link>

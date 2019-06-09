@@ -10,7 +10,7 @@ import Footer from './components/Footer'
 import Questions from './components/Questions';
 import UsersTable from './components/UsersTable';
 import Message from './components/Message';
-
+import QuestionsTable from './components/QuestionsTable';
 /* 
 Class based component. Runs when instance is created.
 super() calls constructor of Component
@@ -206,6 +206,11 @@ class App extends Component {
                       isAuthenticated={this.state.isAuthenticated}
                   />
                   )}/>
+                  <Route exact path='/all-questions' render={() => (
+                    <QuestionsTable
+                      isAuthenticated={this.state.isAuthenticated}
+                  />
+                  )}/>
                 </Switch>
               </div>
             </div>
@@ -217,7 +222,7 @@ class App extends Component {
   };
 
     getUsers() {
-        axios.get(`${process.env.REACT_APP_SERVER_SERVICE_URL}/users`)
+        axios.get(`${process.env.REACT_APP_users_SERVICE_URL}/users`)
         .then((res) => { this.setState({ users: res.data.data.users }); })
         .catch((err) => { console.log(err); });
     };

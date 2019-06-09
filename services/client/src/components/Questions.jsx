@@ -29,7 +29,7 @@ class Questions extends Component {
     submitExercise(event) {
         event.preventDefault();
     }
-    
+
     render() {
         return (
             <div>
@@ -37,7 +37,7 @@ class Questions extends Component {
                 <hr/><br/>
                 {!this.props.isAuthenticated && 
                     <div className="notification is-warning">
-                        <span>Register or Login to submit a code exercise.</span>
+                        <span>Register or Login to submit a question.</span>
                     </div>    
                 }
                 {this.state.exercises.length &&
