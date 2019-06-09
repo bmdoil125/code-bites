@@ -103,7 +103,7 @@ paths:
           description: Signs a user out
       security:
       - bearerAuth: []
-      summary: Signs a user out
+      summary: Signs a user out. This only works client side, the server can't delete your JWT stored in broswer cache. Click the signout button on the navbar to test
   /users:
     get:
       responses:

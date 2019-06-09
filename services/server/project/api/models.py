@@ -15,11 +15,6 @@ class User(db.Model):
     created_date = db.Column(db.DateTime, default=func.now(), nullable=False)
     admin = db.Column(db.Boolean, default=False, nullable=False)
 
-    # One to many
-    questions_authored = db.relationship("Question", back_populates="author")
-
-    # Many to many
-    questions_answered = db.relationship("Score", back_populates="user")
 
     def __init__(self, username, email, password, active=True, admin=False, questions_authored=[], questions_answered=[]):
         self.username = username
@@ -27,8 +22,6 @@ class User(db.Model):
         self.password = bcrypt.generate_password_hash(password, current_app.config.get('BCRYPT_LOG_ROUNDS')).decode(),
         self.active = active
         self.admin = admin
-        self.questions_authored = questions_authored
-        self.questions_answered = questions_answered
         
 
     def to_json(self):
@@ -38,8 +31,6 @@ class User(db.Model):
             'email': self.email,
             'active': self.active,
             'admin': self.admin,
-            'questions_authored': self.questions_authored,
-            'questions_answered': self.questions_answered
         }
     
     def encode_jwt(self, user_id):
@@ -82,9 +73,10 @@ class Question(db.Model):
     # foreign key
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
-    #entity relationship
-    author = db.relationship("User", back_populates="questions_authored")
-    score = db.relationship("Score", back_populates="question")
+    # can't serialize objects, implement backref later
+    # https://stackoverflow.com/questions/50226159/object-of-type-product-is-not-json-serializable
+    # author = db.relationship("User", back_populates="questions_authored")
+    # value = db.relationship("Score", back_populates="question")
 
     body = db.Column(db.String, nullable=False)
     test_code = db.Column(db.String, nullable=False)
@@ -114,14 +106,10 @@ class Score(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
-    # Entity relations
+
     # foreign keys
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
-
-    #relationships
-    user = db.relationship("User", back_populates="users")
-    question = db.relationship("Question", back_populates="questions")
 
     # Additional parameters
     correct = db.Column(db.Boolean, nullable=False)
