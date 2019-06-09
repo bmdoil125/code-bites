@@ -1,0 +1,4 @@
+env
+htmlcov
+migrations
+.dockerignore

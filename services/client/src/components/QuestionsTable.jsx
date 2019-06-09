@@ -20,7 +20,7 @@ class QuestionsTable extends Component {
 
     getQuestions() {
         const options = {
-            url: `${process.env.REACT_APP_SERVER_SERVICE_URL}/questions`,
+            url: `${process.env.BASE_URL}/questions`,
             method: 'get',
             headers: {
                 'Content-Type': 'application/json',

@@ -20,7 +20,7 @@ class UsersTable extends Component {
     }
     getUsers() {
         const options = {
-            url: `${process.env.REACT_APP_SERVER_SERVICE_URL}/users`,
+            url: `${process.env.BASE_URL}/users`,
             method: 'get',
             headers: {
                 'Content-Type': 'application/json',

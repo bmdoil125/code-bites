@@ -14,6 +14,7 @@ services:
      - DATABASE_URL=postgres://postgres:postgres@server-db:5432/server_prod
      - DATABASE_TEST_URL=postgres://postgres:postgres@server-db:5432/server_test
      - SECRET_KEY=${SECRET_KEY}
+     - BASE_URL=${BASE_URL}
     depends_on: 
       - server-db
 
@@ -45,8 +46,19 @@ services:
       dockerfile: Dockerfile-prod
       args:
         - NODE_ENV=production
-        - REACT_APP_SERVER_SERVICE_URL=${REACT_APP_SERVER_SERVICE_URL}
+        - BASE_URL=${BASE_URL}
     ports:
       - 3007:80
     depends_on: 
+      - server
+
+  swagger:
+    build:
+      context: ./services/swagger
+      dockerfile: Dockerfile
+    ports:
+      - 3008:8080
+    environment:
+      - URL=swagger.yaml
+    depends_on:
       - server

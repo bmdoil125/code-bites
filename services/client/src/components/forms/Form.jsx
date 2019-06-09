@@ -59,7 +59,7 @@ class Form extends Component {
         if (formType === 'Register') {
             data.username = this.state.formData.username
         };
-        const url = `${process.env.REACT_APP_SERVER_SERVICE_URL}/login/${formType.toLowerCase()}`;
+        const url = `${process.env.BASE_URL}/login/${formType.toLowerCase()}`;
         axios.post(url, data)
         .then((res) => {
             this.clearForm();

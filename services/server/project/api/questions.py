@@ -23,10 +23,10 @@ def only_json():
 
 
 class QuestionList(Resource):
-    method_decorators = {'post': [authenticate_restful], 'get': [authenticate_restful]}
+    method_decorators = {'post': [authenticate_restful]}
 
 
-    def get(self, auth_id):
+    def get(self):
         """ Need to be authenticated, but not admin to see all questions """
         page = request.args.get('page', 1, type=int)
         # get users

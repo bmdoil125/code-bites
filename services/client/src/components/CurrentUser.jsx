@@ -23,7 +23,7 @@ class CurrentUser extends Component {
 
     getCurrentUser(event) {
         const options = {
-            url: `${process.env.REACT_APP_SERVER_SERVICE_URL}/login/me`,
+            url: `${process.env.BASE_URL}/login/me`,
             method: 'get',
             headers: {
                 'Content-Type': 'application/json',

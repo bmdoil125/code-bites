@@ -11,6 +11,7 @@ import Questions from './components/Questions';
 import UsersTable from './components/UsersTable';
 import Message from './components/Message';
 import QuestionsTable from './components/QuestionsTable';
+
 /* 
 Class based component. Runs when instance is created.
 super() calls constructor of Component
@@ -118,7 +119,7 @@ class App extends Component {
             password: this.state.password,
         };
         // ajax request to backend
-        axios.post(`${process.env.REACT_APP_SERVER_SERVICE_URL}/users`, data)
+        axios.post(`${process.env.BASE_URL}/users`, data)
         .then((res) => { 
             this.getUsers(); //update users list
             this.setState( {username: '', email: '', password: '' }) }) //reset form state
@@ -169,12 +170,7 @@ class App extends Component {
               <div className="column is-three-quarters">
                 <br />
                 <Switch>
-                  <Route exact path='/' render={() => (
-                  <Questions isAuthenticated={this.state.isAuthenticated}/>
-                  )} />
-
-                  )}/>
-                  <Route exact path='/about' component={About} />
+                  <Route exact path='/' component={About} />
                   <Route exact path='/register' render={() => (
                       <Form
                         formType={'Register'}

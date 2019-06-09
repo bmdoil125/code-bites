@@ -1,68 +1,68 @@
 components:
   schemas:
-    user:
-      properties:
-        email:
-          type: string
-          example: user@user.com
-        password:
-          type: string
-          example: user
-    user-full:
-      properties:
-        email:
-          type: string
-          example: user@user.com
-        password:
-          type: string
-          example: user
-        username:
-          type: string
-          example: user
     admin:
       properties:
         email:
-          type: string
           example: admin@admin.com
-        password:
           type: string
+        password:
           example: admin
+          type: string
     admin-full:
       properties:
         email:
-          type: string
           example: admin@admin.com
+          type: string
         password:
-          type: string
           example: admin
+          type: string
         username:
-          type: string
           example: admin
+          type: string
     question:
       properties:
         body:
-          type: string
           example: Define a function called sum
-        test_code:
           type: string
-          example: sum(2, 2)
-        test_solution:
-          type: integer
-          example: 4
         difficulty:
-          type: string
           example: easy
+          type: string
+        test_code:
+          example: sum(2, 2)
+          type: string
+        test_solution:
+          example: 4
+          type: integer
     score:
       properties:
         correct:
+          example: false
           type: boolean
-          example: False
         points:
-          type: integer
           example: 5
-        runtime:
           type: integer
+        runtime:
           example: 2
+          type: integer
+    user:
+      properties:
+        email:
+          example: user@user.com
+          type: string
+        password:
+          example: user
+          type: string
+    user-full:
+      properties:
+        email:
+          example: user@user.com
+          type: string
+        password:
+          example: user
+          type: string
+        username:
+          example: user
+          type: string
   securitySchemes:
     bearerAuth:
       scheme: bearer
@@ -73,23 +73,6 @@ info:
   version: 0.0.1
 openapi: 3.0.2
 paths:
-  /login/register:
-    post:
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/user-full'
-        description: User to add
-        required: true
-      responses:
-        201:
-          description: user object
-        400:
-          description: Invalid payload
-        406:
-          description: invalid content-type
-      summary: Creates a new user. Copy the token in the response. Click the Authorize button at the top and paste the token to authorize your session. 
   /login/login:
     post:
       requestBody:
@@ -121,6 +104,24 @@ paths:
       security:
       - bearerAuth: []
       summary: Returns the logged in user's profile
+  /login/register:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user-full'
+        description: User to add
+        required: true
+      responses:
+        201:
+          description: user object
+        400:
+          description: Invalid payload
+        406:
+          description: invalid content-type
+      summary: Creates a new user. Copy the token in the response. Click the Authorize
+        button at the top and paste the token to authorize your session.
   /login/signout:
     get:
       responses:
@@ -128,14 +129,148 @@ paths:
           description: Signs a user out
       security:
       - bearerAuth: []
-      summary: Signs a user out. This only works client side, the server can't delete your JWT stored in broswer cache. Click the signout button on the navbar to test
+      summary: Signs a user out. This only works client side, the server can't delete
+        your JWT stored in broswer cache. Click the signout button on the navbar to
+        test
+  /question/{question_id}/user/{user_id}:
+    delete:
+      parameters:
+      - description: ID of question to fetch
+        in: path
+        name: question_id
+        required: true
+        schema:
+          format: int64
+          type: integer
+      - description: ID of user who owns (created) the question
+        in: path
+        name: user_id
+        required: true
+        schema:
+          format: int64
+          type: integer
+      responses:
+        204:
+          description: Question deleted
+        403:
+          description: Not authorized to delete this question
+        404:
+          description: Question does not exist
+        406:
+          description: invalid content-type
+      security:
+      - bearerAuth: []
+      summary: Deletes the question
+    get:
+      parameters:
+      - description: ID of question to fetch
+        in: path
+        name: question_id
+        required: true
+        schema:
+          format: int64
+          type: integer
+      - description: ID of user who owns (created) the question
+        in: path
+        name: user_id
+        required: true
+        schema:
+          format: int64
+          type: integer
+      responses:
+        200:
+          description: Question object
+        403:
+          description: Not authorized to view this question
+        404:
+          description: Question does not exist
+        406:
+          description: invalid content-type
+      security:
+      - bearerAuth: []
+      summary: Returns the user's question by question_id
+    put:
+      parameters:
+      - description: ID of question to fetch
+        in: path
+        name: question_id
+        required: true
+        schema:
+          format: int64
+          type: integer
+      - description: ID of user who owns (created) the question
+        in: path
+        name: user_id
+        required: true
+        schema:
+          format: int64
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/question'
+        description: Question to update
+        required: true
+      responses:
+        201:
+          description: Question object
+        403:
+          description: Not authorized to update this question
+        404:
+          description: Question does not exist
+        406:
+          description: invalid content-type
+      security:
+      - bearerAuth: []
+      summary: Updates the question and returns the updated question object
+  /questions:
+    get:
+      responses:
+        200:
+          description: List of question objects
+        403:
+          description: You must be signed in to view all questions
+      security:
+      - bearerAuth: []
+      summary: Returns all questions. Only admin users can view this route.
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/question'
+        description: Question to add
+        required: true
+      responses:
+        201:
+          description: Question added
+        400:
+          description: Invalid payload
+        403:
+          description: Not authorized to create a question
+        406:
+          description: invalid content-type
+      security:
+      - bearerAuth: []
+      summary: Adds a new question
+  /questions/user:
+    get:
+      responses:
+        200:
+          description: List of question objects
+        403:
+          description: You must be signed in to view your questions
+      security:
+      - bearerAuth: []
+      summary: Returns all questions by the authenticated user
   /users:
     get:
       responses:
         200:
           description: user object
         403:
-          description: 'You must be signed in as an admin to view all users'
+          description: You must be signed in as an admin to view all users
       security:
       - bearerAuth: []
       summary: Returns all users
@@ -236,140 +371,5 @@ paths:
       security:
       - bearerAuth: []
       summary: Updates the user and returns the updated user object
-  /questions:
-    get:
-      responses:
-        200:
-          description: List of question objects
-        403:
-          description: 'You must be signed in to view all questions'
-      security:
-      - bearerAuth: []
-      summary: Returns all questions
-    post:
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/question'
-        description: Question to add
-        required: true
-      responses:
-        201:
-          description: Question added
-        400:
-          description: Invalid payload
-        403:
-          description: Not authorized to create a question
-        406:
-          description: invalid content-type
-      security:
-      - bearerAuth: []
-      summary: Adds a new question
-
-  /question/{question_id}/user/{user_id}:
-    get:
-      parameters:
-      - description: ID of question to fetch
-        in: path
-        name: question_id
-        required: true
-        schema:
-          format: int64
-          type: integer
-      - description: ID of user who owns (created) the question
-        in: path
-        name: user_id
-        required: true
-        schema:
-          format: int64
-          type: integer
-      responses:
-        200:
-          description: Question object
-        403:
-          description: Not authorized to view this question
-        404:
-          description: Question does not exist
-        406:
-          description: invalid content-type
-      security:
-      - bearerAuth: []
-      summary: Returns the user's question by question_id
-    put:
-      parameters:
-      - description: ID of question to fetch
-        in: path
-        name: question_id
-        required: true
-        schema:
-          format: int64
-          type: integer
-      - description: ID of user who owns (created) the question
-        in: path
-        name: user_id
-        required: true
-        schema:
-          format: int64
-          type: integer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/question'
-        description: Question to update
-        required: true
-      responses:
-        201:
-          description: Question object
-        403:
-          description: Not authorized to update this question
-        404:
-          description: Question does not exist
-        406:
-          description: invalid content-type
-      security:
-      - bearerAuth: []
-      summary: Updates the question and returns the updated question object
-    delete:
-      parameters:
-      - description: ID of question to fetch
-        in: path
-        name: question_id
-        required: true
-        schema:
-          format: int64
-          type: integer
-      - description: ID of user who owns (created) the question
-        in: path
-        name: user_id
-        required: true
-        schema:
-          format: int64
-          type: integer
-      responses:
-        204:
-          description: Question deleted
-        403:
-          description: Not authorized to delete this question
-        404:
-          description: Question does not exist
-        406:
-          description: invalid content-type
-      security:
-      - bearerAuth: []
-      summary: Deletes the question
-  /questions/user:
-    get:
-      responses:
-        200:
-          description: List of question objects
-        403:
-          description: 'You must be signed in to view your questions'
-      security:
-      - bearerAuth: []
-      summary: Returns all questions by the authenticated user
-
-
 servers:
-  - url: http://localhost
+- url: http://app.brentdoil.com

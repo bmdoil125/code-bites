@@ -21,7 +21,6 @@ const NavBar = (props) => (
             <div className="navbar-menu">
                 <div className="navbar-start">
                     <Link to="/" className="navbar-item">Home</Link>
-                    <Link to="/about" className="navbar-item">About</Link>
                     {props.isAuthenticated &&
                         <Link to="/all-users" className="navbar-item">All Users</Link>
                     }
@@ -30,9 +29,6 @@ const NavBar = (props) => (
                     }
                     {props.isAuthenticated &&
                         <Link to="/all-scores" className="navbar-item">All Scores</Link>
-                    }
-                    {props.isAuthenticated &&
-                        <Link to="/me" className="navbar-item">Profile</Link>
                     }
                     <a href="/swagger" className="navbar-item">API</a>
                 </div>            

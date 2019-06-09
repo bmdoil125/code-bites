@@ -16,7 +16,7 @@ services:
      - DATABASE_URL=postgres://postgres:postgres@server-db:5432/server_dev 
      - DATABASE_TEST_URL=postgres://postgres:postgres@server-db:5432/server_test
      - SECRET_KEY=supersecretkey
-     - BASE_URL=http://localhost
+     - BASE_URL=${BASE_URL}
     depends_on: 
       - server-db
 
@@ -52,7 +52,7 @@ services:
       - 3007:3000
     environment: 
       - NODE_ENV=development
-      - REACT_APP_SERVER_SERVICE_URL=${REACT_APP_SERVER_SERVICE_URL}
+      - BASE_URL=${BASE_URL}
     depends_on:
       - server
 

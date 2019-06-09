@@ -1,34 +1,27 @@
 #!/bin/bash
 
-fails=""
-
-inspect() {
-    if [ $1 -ne 0 ]; then
-        fails="${fails} $2"
-    fi
-}
-
-docker-compose up -d --build
-docker-compose exec server python manage.py test
-inspect $? server
-#docker-compose exec server flake8 project
-# inspect $? server-lint
-docker-compose exec client npm test -- --coverage
-inspect $? client
-docker-compose down
 
 
-# integration testing
-#docker-compose -f docker-compose-prod.yml up -d --build
-#docker-compose -f docker-compose-prod.yml exec server python manage.py recreate_db
-#./node_modules/.bin/cypress run --config baseUrl=http://localhost
-#inspect $? e2e
-#docker-compose -f docker-compose-prod.yml down
 
-if [ -n "${fails}" ]; then
-    echo "Tests failed: ${fails}"
+if ! [ -x "$(command -v docker)" ]; then
+    echo "Error: docker is not installed"
     exit 1
-else
-    echo "Tests passed"
-    exit 0
+elif ! [ -x "$(command -v docker-compose)" ]; then
+    echo "Error: docker-compose is not installed"
+    exit 1
+elif ! [ -x "$(command -v python)" ]; then
+    echo "Error: python is not installed"
+    exit 1
 fi
+
+export BASE_URL=http://localhost
+
+if [ "$(docker-compose -f docker-compose.yml up -d --build)" -ne 0 ]; then
+    echo "Build failed."
+    exit 1
+fi
+
+docker-compose -f docker-compose.yml exec server python manage.py recreate_db
+docker-compose -f docker-compose.yml exec server python manage.py add_test_data
+docker-compose -f docker-compose.yml exec server python manage.py test
+docker-compose down
