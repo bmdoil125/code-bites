@@ -1,6 +1,7 @@
 from sqlalchemy import exc, func
-from flask import Blueprint, request, current_app, url_for
+from flask import Blueprint, request, current_app, url_for, make_response
 from flask_restful import Resource, Api
+import json
 
 from project import db
 from project.api.models import Question
@@ -9,20 +10,35 @@ from project.api.utils import authenticate_restful, is_admin, is_same_user
 questions_blueprint = Blueprint('questions', __name__)
 api = Api(questions_blueprint)
 
+@questions_blueprint.before_request
+def only_json():
+    if not request.is_json and request.method != 'GET' and request.method != 'DELETE':
+        response = make_response(json.dumps({
+            'status': 'fail',
+            'message': 'This endpoint only accepts json'
+        }))
+        response.headers['Content-Type'] = 'application/json'
+        response.status_code = 406
+        return response
+
+
 class QuestionList(Resource):
     method_decorators = {'post': [authenticate_restful], 'get': [authenticate_restful]}
 
 
     def get(self, auth_id):
         """ Need to be authenticated, but not admin to see all questions """
-        num_questions = db.session.query(func.count(Question.id)).scalar()
+
+        questions = [question.to_json() for question in Question.query.all()]
+
+        for q in questions:
+            q['self'] = current_app.config.get('BASE_URL') + url_for('questions.questionbyuser', question_id=q['id'], user_id=q['author_id'])
+
         response = {
             'status': 'success',
             'data': {
-                'num_question': num_questions,
-                'questions': [
-                    question.to_json() for question in Question.query.all()
-                ]
+                'num_questions': len(questions),
+                'questions': questions
             }
         }
         return response, 200
@@ -38,9 +54,7 @@ class QuestionList(Resource):
         if not post_data:
             response['message'] = 'Empty payload'
             return response, 400
-
-        # author id is this user (auth_id is the id of the decoded token)
-        author_id = auth_id
+        author_id = post_data.get('author_id')
         body = post_data.get('body')
         test_code = post_data.get('test_code')
         test_solution = post_data.get('test_solution')
@@ -79,7 +93,7 @@ class AllQuestionsByAuthenticatedUser(Resource):
                 'questions': questions
             }
         }
-        print(response)
+        # print(response)
         return response, 200
 
 class QuestionByUser(Resource):

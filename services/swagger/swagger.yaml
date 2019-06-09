@@ -38,6 +38,31 @@ components:
         username:
           type: string
           example: admin
+    question:
+      properties:
+        body:
+          type: string
+          example: Define a function called sum
+        test_code:
+          type: string
+          example: sum(2, 2)
+        test_solution:
+          type: integer
+          example: 4
+        difficulty:
+          type: string
+          example: easy
+    score:
+      properties:
+        correct:
+          type: boolean
+          example: False
+        points:
+          type: integer
+          example: 5
+        runtime:
+          type: integer
+          example: 2
   securitySchemes:
     bearerAuth:
       scheme: bearer
@@ -71,7 +96,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/user'
+              $ref: '#/components/schemas/admin'
         description: User to log in
         required: true
       responses:
@@ -211,5 +236,140 @@ paths:
       security:
       - bearerAuth: []
       summary: Updates the user and returns the updated user object
+  /questions:
+    get:
+      responses:
+        200:
+          description: List of question objects
+        403:
+          description: 'You must be signed in to view all questions'
+      security:
+      - bearerAuth: []
+      summary: Returns all questions
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/question'
+        description: Question to add
+        required: true
+      responses:
+        201:
+          description: Question added
+        400:
+          description: Invalid payload
+        403:
+          description: Not authorized to create a question
+        406:
+          description: invalid content-type
+      security:
+      - bearerAuth: []
+      summary: Adds a new question
+
+  /question/{question_id}/user/{user_id}:
+    get:
+      parameters:
+      - description: ID of question to fetch
+        in: path
+        name: question_id
+        required: true
+        schema:
+          format: int64
+          type: integer
+      - description: ID of user who owns (created) the question
+        in: path
+        name: user_id
+        required: true
+        schema:
+          format: int64
+          type: integer
+      responses:
+        200:
+          description: Question object
+        403:
+          description: Not authorized to view this question
+        404:
+          description: Question does not exist
+        406:
+          description: invalid content-type
+      security:
+      - bearerAuth: []
+      summary: Returns the user's question by question_id
+    put:
+      parameters:
+      - description: ID of question to fetch
+        in: path
+        name: question_id
+        required: true
+        schema:
+          format: int64
+          type: integer
+      - description: ID of user who owns (created) the question
+        in: path
+        name: user_id
+        required: true
+        schema:
+          format: int64
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/question'
+        description: Question to update
+        required: true
+      responses:
+        201:
+          description: Question object
+        403:
+          description: Not authorized to update this question
+        404:
+          description: Question does not exist
+        406:
+          description: invalid content-type
+      security:
+      - bearerAuth: []
+      summary: Updates the question and returns the updated question object
+    delete:
+      parameters:
+      - description: ID of question to fetch
+        in: path
+        name: question_id
+        required: true
+        schema:
+          format: int64
+          type: integer
+      - description: ID of user who owns (created) the question
+        in: path
+        name: user_id
+        required: true
+        schema:
+          format: int64
+          type: integer
+      responses:
+        204:
+          description: Question deleted
+        403:
+          description: Not authorized to delete this question
+        404:
+          description: Question does not exist
+        406:
+          description: invalid content-type
+      security:
+      - bearerAuth: []
+      summary: Deletes the question
+  /questions/user:
+    get:
+      responses:
+        200:
+          description: List of question objects
+        403:
+          description: 'You must be signed in to view your questions'
+      security:
+      - bearerAuth: []
+      summary: Returns all questions by the authenticated user
+
+
 servers:
   - url: http://localhost

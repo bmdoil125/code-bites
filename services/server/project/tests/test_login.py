@@ -188,7 +188,7 @@ class TestLoginRoute(BaseTestCase):
                 content_type='application/json'
             )
             data = json.loads(response.data.decode())
-            print(data)
+            # print(data)
             self.assertTrue(data['status'] == 'fail')
             self.assertTrue(data['message'] == 'Please log in again.')
             self.assertEqual(response.status_code, 403)
@@ -225,7 +225,7 @@ class TestLoginRoute(BaseTestCase):
                 content_type='application/json'
             )
             data = json.loads(response.data.decode())
-            print(data)
+            # print(data)
             self.assertTrue(data['message'] == 'Success')
             self.assertTrue(data['status'] == 'success')
             self.assertTrue(data['data'] is not None)

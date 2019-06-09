@@ -77,7 +77,7 @@ class TestQuestions(BaseTestCase):
             )
             token = json.loads(response_login.data.decode())['token']
         
-            response = self.client.post(
+            self.client.post(
                 '/questions',
                 data=json.dumps({
                     'author_id': 1,
@@ -161,39 +161,6 @@ class TestQuestions(BaseTestCase):
             self.assertIn('Question added', data['message'])
             self.assertIn('success', data['status'])
 
-    def test_add_question_authenticated(self):
-        """ Ensure a new question can be added to the database """
-
-        # Must be authenticated to add question
-        add_user('testuser', 'test@testing.io', 'testpass')
-        with self.client:
-            response_login = self.client.post(
-                '/login/login',
-                data=json.dumps({
-                    'email': 'test@testing.io',
-                    'password': 'testpass'
-                }),
-                content_type='application/json'                
-            )
-            token = json.loads(response_login.data.decode())['token']
-        
-            response = self.client.post(
-                '/questions',
-                data=json.dumps({
-                    'author_id': 1,
-                    'body': 'Sample question',
-                    'test_code': 'testing',
-                    'test_solution': 'still testing',
-                    'difficulty': 'Moderate',
-                }),
-                content_type='application/json',
-                headers=({'Authorization': f'Bearer {token}'})
-            )
-            data = json.loads(response.data.decode())
-            self.assertEqual(response.status_code, 201)
-            self.assertIn('Question added', data['message'])
-            self.assertIn('success', data['status'])
-
     def test_get_all_questions(self):
         """ Ensure getting all questions is working for admin"""
         # By default this user will have id=1. At least 1 user is required to add questions
@@ -212,7 +179,7 @@ class TestQuestions(BaseTestCase):
 
             # author_id = 1 
             add_question()
-            add_question(1,'Testing', 'print("Testing")', 'Testing', 'Easy')
+            add_question(1,'Testing', '# print("Testing")', 'Testing', 'Easy')
 
 
             response = self.client.get(
@@ -235,7 +202,7 @@ class TestQuestions(BaseTestCase):
                 data['data']['questions'][1]['body']
             )
             self.assertIn(
-                'print("Testing")',
+                '# print("Testing")',
                 data['data']['questions'][1]['test_code']
             )
             self.assertIn(
@@ -264,8 +231,8 @@ class TestQuestions(BaseTestCase):
             token = json.loads(response_login.data.decode())['token']
             # author_id = 1 
             add_question()
-            add_question(1,'Testing', 'print("Testing")', 'Testing', 'Easy')
-            add_question(2,'Testing', 'print("Testing")', 'Testing', 'Easy')
+            add_question(1,'Testing', '# print("Testing")', 'Testing', 'Easy')
+            add_question(2,'Testing', '# print("Testing")', 'Testing', 'Easy')
 
             response = self.client.get(
                 '/questions/user',
@@ -286,7 +253,7 @@ class TestQuestions(BaseTestCase):
                 data['data']['questions'][1]['body']
             )
             self.assertIn(
-                'print("Testing")',
+                '# print("Testing")',
                 data['data']['questions'][1]['test_code']
             )
             self.assertIn(
@@ -469,7 +436,7 @@ class TestQuestions(BaseTestCase):
                 f'/questions/{question.id}/user/{user.id}',
                 headers={'Authorization': f'Bearer {token}'}
             )
-            print(delete_response)
+            # print(delete_response)
             self.assertEqual(delete_response.status_code, 204)
 
 

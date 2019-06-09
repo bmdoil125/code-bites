@@ -1,5 +1,5 @@
 from project import db
-from project.api.models import User, Question
+from project.api.models import User, Question, Score
 
 def add_user(username, email, password):
     user = User(username=username, email=email, password=password)
@@ -31,6 +31,23 @@ def add_question(
     db.session.add(question)
     db.session.commit()
     return question
+
+def add_score(
+    user_id=1,
+    question_id=1,
+    correct=False,
+    points=5,
+    runtime=10):
+    score = Score(
+        user_id=user_id,
+        question_id=question_id,
+        correct=correct,
+        points=points,
+        runtime=runtime
+    )
+    db.session.add(score)
+    db.session.commit()
+    return score
 
 
 

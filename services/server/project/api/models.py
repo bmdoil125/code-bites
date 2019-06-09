@@ -116,8 +116,7 @@ class Score(db.Model):
     points = db.Column(db.Integer, nullable=False)
     runtime = db.Column(db.Integer, nullable=False)
 
-    def __init__(self, id, user_id, question_id, correct=False, points=1, runtime=0):
-        self.id = id
+    def __init__(self, user_id, question_id, correct=False, points=1, runtime=0):
         self.user_id = user_id
         self.question_id = question_id
         self.correct = correct
@@ -130,7 +129,6 @@ class Score(db.Model):
             'user_id': self.user_id,
             'question_id': self.question_id,
             'correct': self.correct,
-            'points': self.date_completed,
             'runtime': self.runtime
         }
 

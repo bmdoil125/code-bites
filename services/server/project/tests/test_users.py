@@ -325,7 +325,7 @@ class TestUserService(BaseTestCase):
                 headers={'Authorization': f'Bearer {token}'}
             )
             data = json.loads(response.data.decode())
-            print(data)
+            # print(data)
             self.assertTrue(data['status'] == 'fail')
             self.assertTrue(data['message'] == 'Unauthorized')
             self.assertEqual(response.status_code, 401)
@@ -352,7 +352,7 @@ class TestUserService(BaseTestCase):
                 headers={'Authorization': f'Bearer {token}'}
             )
             data = json.loads(response.data.decode())
-            print(data)
+            # print(data)
             self.assertTrue(data['status'] == 'fail')
             self.assertTrue(data['message'] == 'Forbidden')
             self.assertEqual(response.status_code, 403)
@@ -374,7 +374,7 @@ class TestUserService(BaseTestCase):
                 headers={'Authorization': f'Bearer {token}'}
                 )
             data = json.loads(get_response.data.decode())
-            print(data)
+            # print(data)
             self.assertEqual(get_response.status_code, 200)
             self.assertIn('testname', data['data']['username'])
             self.assertIn('test@ing.com', data['data']['email'])
@@ -386,7 +386,7 @@ class TestUserService(BaseTestCase):
                 headers={'Authorization': f'Bearer {token}'}
             )
             put_data = json.loads(put_response.data.decode())
-            print(put_data)
+            # print(put_data)
             self.assertEqual(put_response.status_code, 201)
             self.assertIn('brent', put_data['data']['username'])
             self.assertIn('success', put_data['status'])
@@ -407,7 +407,7 @@ class TestUserService(BaseTestCase):
                 headers={'Authorization': f'Bearer {token}'}
                 )
             data = json.loads(get_response.data.decode())
-            print(data)
+            # print(data)
             self.assertEqual(get_response.status_code, 200)
             self.assertIn('testname', data['data']['username'])
             self.assertIn('test@ing.com', data['data']['email'])
@@ -419,7 +419,7 @@ class TestUserService(BaseTestCase):
                 headers={'Authorization': f'Bearer {token}'}
             )
             put_data = json.loads(put_response.data.decode())
-            print(put_data)
+            # print(put_data)
             self.assertEqual(put_response.status_code, 201)
             self.assertIn('brent', put_data['data']['username'])
             self.assertIn('success', put_data['status'])
@@ -489,7 +489,7 @@ class TestUserService(BaseTestCase):
                 headers={'Authorization': f'Bearer {token}'}
                 )
             data = json.loads(get_response.data.decode())
-            print(data)
+            # print(data)
             self.assertEqual(get_response.status_code, 200)
             self.assertIn('testname', data['data']['username'])
             self.assertIn('test@ing.com', data['data']['email'])
@@ -518,7 +518,7 @@ class TestUserService(BaseTestCase):
                 content_type='application/json'
             )
             delete_data = json.loads(delete_response.data.decode())
-            print(delete_data)
+            # print(delete_data)
             self.assertEqual(delete_response.status_code, 403)
             self.assertIn('fail', delete_data['status'])
             self.assertIn('Forbidden', delete_data['message'])
